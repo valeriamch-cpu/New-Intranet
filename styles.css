@@ -1,0 +1,188 @@
+:root {
+  --bg: #f3f6fc;
+  --card: #ffffff;
+  --accent: #1f6feb;
+  --text: #0f172a;
+  --muted: #667085;
+  --border: #d0d7e2;
+  --selected: #e6f0ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+h1 {
+  margin: 0.2rem 0 0;
+  font-size: 1.4rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr 320px;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.sidebar,
+.calendar-panel,
+.events-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.team-nav {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.team-nav button {
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 0.6rem;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.team-nav button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #eef4ff;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+#calendar-subtitle {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+}
+
+.month-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.month-controls button,
+.ghost-btn,
+.event-form button {
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.calendar-grid-head,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.calendar-grid-head {
+  margin: 1rem 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.calendar-grid button {
+  min-height: 72px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  text-align: left;
+  padding: 0.4rem;
+  cursor: pointer;
+}
+
+.calendar-grid button.selected {
+  background: var(--selected);
+  border-color: var(--accent);
+}
+
+.calendar-grid button.today {
+  outline: 2px solid #f59e0b;
+}
+
+.day-number {
+  font-weight: 600;
+}
+
+.day-event {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+.events-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.events-list li {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem;
+}
+
+.event-form {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 0.6rem;
+}
+
+.event-form label {
+  display: grid;
+  font-size: 0.9rem;
+  gap: 0.35rem;
+}
+
+.event-form input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
