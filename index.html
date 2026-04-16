@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intranet Corporativa</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Portal interno</p>
+        <h1>Intranet de la empresa</h1>
+      </div>
+      <button id="today-btn" class="ghost-btn">Ir a hoy</button>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <h2>Secciones</h2>
+        <nav id="team-nav" class="team-nav"></nav>
+      </aside>
+
+      <section class="calendar-panel">
+        <div class="calendar-header">
+          <div>
+            <h2 id="current-team-name">Calendario principal</h2>
+            <p id="calendar-subtitle">Eventos importantes de la empresa</p>
+          </div>
+          <div class="month-controls">
+            <button id="prev-month">◀</button>
+            <strong id="month-title"></strong>
+            <button id="next-month">▶</button>
+          </div>
+        </div>
+
+        <div class="calendar-grid-head">
+          <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+        </div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+      </section>
+
+      <section class="events-panel">
+        <h2>Eventos del día</h2>
+        <ul id="events-list" class="events-list"></ul>
+        <form id="event-form" class="event-form">
+          <h3>Agregar evento</h3>
+          <label>
+            Fecha
+            <input type="date" id="event-date" required />
+          </label>
+          <label>
+            Título
+            <input type="text" id="event-title" placeholder="Ej: Reunión comercial" required />
+          </label>
+          <button type="submit">Guardar evento</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
