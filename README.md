@@ -1,39 +1,30 @@
 # New-Intranet
 
-Prototipo de intranet con:
+Prototipo de intranet estática inspirado en su estructura de Google Sites:
 
-- Calendario principal de eventos importantes.
-- Botones por secciones: Operaciones (Equipos), Finanzas, Wholesale, Marketing y Gestión.
-- Calendario por cada equipo con sus propios eventos.
+- Navegación principal tipo portal (Página principal / Informes / Pedidos).
+- Bloque de bienvenida.
+- Resumen de reunión anterior en formato lista.
+- Tarjetas de temas pendientes y fechas de importación.
+- Calendario por equipo (Operaciones, Finanzas, Wholesale, Marketing y Gestión).
 - Formulario para agregar eventos al equipo seleccionado.
 
-## Uso rápido en local
+## Verlo en local
 
-1. Ejecuta un servidor local:
+```bash
+python3 -m http.server 8080
+```
 
-   ```bash
-   python3 -m http.server 8080
-   ```
+Luego abrir: `http://localhost:8080`
 
-2. Abre en tu navegador:
+## Publicación en GitHub Pages
 
-   ```
-   http://localhost:8080
-   ```
+URL esperada del proyecto:
 
-## Publicación automática (GitHub Pages)
+- https://valeriamch-cpu.github.io/New-Intranet/
 
-Se agregó el workflow `.github/workflows/deploy-pages.yml`.
+## Personalización rápida
 
-### Qué hace
-
-- Publica automáticamente en GitHub Pages cada vez que hay un push a `main`.
-- También permite publicación manual desde la pestaña **Actions** (`workflow_dispatch`).
-
-### Cómo activarlo en el repositorio
-
-1. En GitHub ve a **Settings > Pages**.
-2. En **Build and deployment**, selecciona **Source: GitHub Actions**.
-3. Haz push de esta rama a `main`.
-4. Espera a que termine el workflow **Deploy static intranet to GitHub Pages**.
-5. GitHub mostrará la URL pública (normalmente `https://<usuario>.github.io/<repo>/`).
+- Edita `intranetContent` en `script.js` para cambiar resumen, pendientes e importaciones.
+- Edita `teams` en `script.js` para ajustar eventos por área.
+- Cambia links del header en `index.html` si necesitas apuntar a tus rutas internas reales.

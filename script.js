@@ -1,3 +1,23 @@
+const intranetContent = {
+  meetingSummary: [
+    'Reunión Salomon: Popi encargada de enviar propuesta.',
+    'Juan y Jano revisar plan para lanzamiento Carhartt.',
+    'Inventario Montduck listo en Lo Echevers.',
+    'Black Friday Marais: carga full con RDMTPN, Cachagua y Burritos.',
+    'Margarita: revisar arte y gráficas para Black Marais.',
+    'Hey Dude Marais: instalación mañana en la noche.',
+    'Hey Dude en The Market: cerrar gráficas y neones ASAP.',
+    'Poleras: continuar producción tras mantención de Microgeo.',
+    'Agendar ruteros Paris y Falabella con prioridad fin de año.'
+  ],
+  pendingTopics: [
+    'Confirmar piezas gráficas de campaña semanal.',
+    'Actualizar status de quiebres de stock por tienda.',
+    'Publicar minutas de comité de seguimiento.'
+  ],
+  importDates: ['Viernes 28 - Operación full day.', 'Martes 2 - Cierre de órdenes mayoristas.', 'Jueves 11 - Ventana de recepción en bodega.']
+};
+
 const teams = {
   general: {
     name: 'Calendario principal',
@@ -56,6 +76,10 @@ const state = {
   selectedDate: formatDate(new Date())
 };
 
+const meetingPoints = document.getElementById('meeting-points');
+const pendingList = document.getElementById('pending-list');
+const importsList = document.getElementById('imports-list');
+
 const teamNav = document.getElementById('team-nav');
 const monthTitle = document.getElementById('month-title');
 const calendarGrid = document.getElementById('calendar-grid');
@@ -67,6 +91,7 @@ const eventForm = document.getElementById('event-form');
 init();
 
 function init() {
+  renderInternalInfo();
   renderTeamButtons();
   renderCalendar();
   renderDayEvents();
@@ -108,6 +133,26 @@ function init() {
     eventForm.reset();
     renderCalendar();
     renderDayEvents();
+  });
+}
+
+function renderInternalInfo() {
+  intranetContent.meetingSummary.forEach((point) => {
+    const item = document.createElement('li');
+    item.textContent = point;
+    meetingPoints.appendChild(item);
+  });
+
+  intranetContent.pendingTopics.forEach((topic) => {
+    const item = document.createElement('li');
+    item.textContent = topic;
+    pendingList.appendChild(item);
+  });
+
+  intranetContent.importDates.forEach((date) => {
+    const item = document.createElement('li');
+    item.textContent = date;
+    importsList.appendChild(item);
   });
 }
 
@@ -153,6 +198,7 @@ function renderCalendar() {
     const date = new Date(base.getFullYear(), base.getMonth(), day);
     const dateKey = formatDate(date);
     const dayBtn = document.createElement('button');
+    dayBtn.type = 'button';
     dayBtn.innerHTML = `<div class="day-number">${day}</div>`;
 
     const events = teams[state.teamKey].events[dateKey] || [];
