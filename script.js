@@ -1,100 +1,61 @@
-const intranetContent = {
-  meetingSummary: [
-    'Reunión Salomon: Popi encargada de enviar propuesta.',
-    'Juan y Jano revisar plan para lanzamiento Carhartt.',
-    'Inventario Montduck listo en Lo Echevers.',
-    'Black Friday Marais: carga full con RDMTPN, Cachagua y Burritos.',
-    'Margarita: revisar arte y gráficas para Black Marais.',
-    'Hey Dude Marais: instalación mañana en la noche.',
-    'Hey Dude en The Market: cerrar gráficas y neones ASAP.',
-    'Poleras: continuar producción tras mantención de Microgeo.',
-    'Agendar ruteros Paris y Falabella con prioridad fin de año.'
-  ],
-  pendingTopics: [
-    'Confirmar piezas gráficas de campaña semanal.',
-    'Actualizar status de quiebres de stock por tienda.',
-    'Publicar minutas de comité de seguimiento.'
-  ],
-  importDates: ['Viernes 28 - Operación full day.', 'Martes 2 - Cierre de órdenes mayoristas.', 'Jueves 11 - Ventana de recepción en bodega.']
+const users = {
+  admin: ['1234', 'admin123']
 };
 
-const teams = {
-  general: {
-    name: 'Calendario principal',
-    subtitle: 'Eventos importantes de toda la empresa',
-    events: {
-      '2026-04-20': ['Townhall mensual'],
-      '2026-04-23': ['Cierre de reporte trimestral'],
-      '2026-05-03': ['Lanzamiento de campaña Q2']
-    }
-  },
-  equipos: {
-    name: 'Equipo de Operaciones',
-    subtitle: 'Seguimiento operativo y coordinación interna',
-    events: {
-      '2026-04-18': ['Revisión de SLAs'],
-      '2026-04-28': ['Capacitación de procesos']
-    }
-  },
-  finanzas: {
-    name: 'Finanzas',
-    subtitle: 'Pagos, presupuestos y cierres contables',
-    events: {
-      '2026-04-25': ['Aprobación de presupuesto'],
-      '2026-05-01': ['Cierre contable mensual']
-    }
-  },
-  wholesale: {
-    name: 'Wholesale',
-    subtitle: 'Gestión de cuentas mayoristas y pipeline',
-    events: {
-      '2026-04-21': ['Revisión de cuentas clave'],
-      '2026-05-06': ['Demo nuevo catálogo']
-    }
-  },
-  marketing: {
-    name: 'Marketing',
-    subtitle: 'Campañas, contenido y adquisición',
-    events: {
-      '2026-04-19': ['Plan de contenidos'],
-      '2026-04-29': ['Presentación resultados de campaña']
-    }
-  },
-  gestion: {
-    name: 'Gestión',
-    subtitle: 'Dirección, decisiones y seguimiento estratégico',
-    events: {
-      '2026-04-22': ['Comité ejecutivo'],
-      '2026-05-04': ['KPIs de negocio']
-    }
-  }
+const storageKeys = {
+  events: 'intranet-group-events',
+  notes: 'intranet-notes-board',
+  chat: 'intranet-group-chat',
+  user: 'intranet-user'
 };
 
 const state = {
-  teamKey: 'general',
   currentDate: new Date(),
-  selectedDate: formatDate(new Date())
+  selectedDate: formatDate(new Date()),
+  user: null,
+  events: loadEvents(),
+  chat: loadChat()
 };
 
-const meetingPoints = document.getElementById('meeting-points');
-const pendingList = document.getElementById('pending-list');
-const importsList = document.getElementById('imports-list');
+const loginView = document.getElementById('login-view');
+const appView = document.getElementById('app-view');
+const loginForm = document.getElementById('login-form');
+const loginError = document.getElementById('login-error');
+const logoutBtn = document.getElementById('logout-btn');
+const previewBtn = document.getElementById('preview-btn');
+const sessionUser = document.getElementById('session-user');
 
-const teamNav = document.getElementById('team-nav');
 const monthTitle = document.getElementById('month-title');
 const calendarGrid = document.getElementById('calendar-grid');
-const currentTeamName = document.getElementById('current-team-name');
-const calendarSubtitle = document.getElementById('calendar-subtitle');
 const eventsList = document.getElementById('events-list');
 const eventForm = document.getElementById('event-form');
+
+const notesBoard = document.getElementById('notes-board');
+const clearNotesBtn = document.getElementById('clear-notes');
+
+const chatList = document.getElementById('chat-list');
+const chatForm = document.getElementById('chat-form');
 
 init();
 
 function init() {
-  renderInternalInfo();
-  renderTeamButtons();
-  renderCalendar();
-  renderDayEvents();
+  setView(false);
+
+  if (window.location.hash === '#app') {
+    loginSuccess('invitado');
+  }
+
+  const savedUser = localStorage.getItem(storageKeys.user);
+  if (!state.user && savedUser && users[savedUser]) {
+    loginSuccess(savedUser);
+  }
+
+  loginForm.addEventListener('submit', handleLogin);
+  logoutBtn.addEventListener('click', logout);
+  previewBtn.addEventListener('click', () => {
+    loginError.textContent = '';
+    loginSuccess('invitado');
+  });
 
   document.getElementById('prev-month').addEventListener('click', () => {
     state.currentDate.setMonth(state.currentDate.getMonth() - 1);
@@ -123,9 +84,9 @@ function init() {
       return;
     }
 
-    const team = teams[state.teamKey];
-    team.events[date] = team.events[date] || [];
-    team.events[date].push(title);
+    state.events[date] = state.events[date] || [];
+    state.events[date].push(title);
+    persistEvents();
 
     state.selectedDate = date;
     state.currentDate = new Date(`${date}T00:00:00`);
@@ -134,47 +95,87 @@ function init() {
     renderCalendar();
     renderDayEvents();
   });
-}
 
-function renderInternalInfo() {
-  intranetContent.meetingSummary.forEach((point) => {
-    const item = document.createElement('li');
-    item.textContent = point;
-    meetingPoints.appendChild(item);
+  notesBoard.value = localStorage.getItem(storageKeys.notes) || '';
+  notesBoard.addEventListener('input', () => {
+    localStorage.setItem(storageKeys.notes, notesBoard.value);
   });
 
-  intranetContent.pendingTopics.forEach((topic) => {
-    const item = document.createElement('li');
-    item.textContent = topic;
-    pendingList.appendChild(item);
+  clearNotesBtn.addEventListener('click', () => {
+    notesBoard.value = '';
+    localStorage.removeItem(storageKeys.notes);
   });
 
-  intranetContent.importDates.forEach((date) => {
-    const item = document.createElement('li');
-    item.textContent = date;
-    importsList.appendChild(item);
-  });
-}
+  chatForm.addEventListener('submit', (event) => {
+    event.preventDefault();
 
-function renderTeamButtons() {
-  teamNav.innerHTML = '';
+    const input = document.getElementById('chat-message');
+    const text = input.value.trim();
 
-  Object.entries(teams).forEach(([key, team]) => {
-    const button = document.createElement('button');
-    button.textContent = team.name;
-    button.className = key === state.teamKey ? 'active' : '';
+    if (!text || !state.user) {
+      return;
+    }
 
-    button.addEventListener('click', () => {
-      state.teamKey = key;
-      currentTeamName.textContent = team.name;
-      calendarSubtitle.textContent = team.subtitle;
-      renderTeamButtons();
-      renderCalendar();
-      renderDayEvents();
+    state.chat.push({
+      user: state.user,
+      text,
+      createdAt: new Date().toISOString()
     });
 
-    teamNav.appendChild(button);
+    if (state.chat.length > 80) {
+      state.chat = state.chat.slice(-80);
+    }
+
+    persistChat();
+    input.value = '';
+    renderChat();
   });
+}
+
+function handleLogin(event) {
+  event.preventDefault();
+
+  const username = document.getElementById('username').value.trim().toLowerCase();
+  const password = document.getElementById('password').value.trim();
+
+  const validPasswords = users[username] || [];
+  if (validPasswords.includes(password)) {
+    loginSuccess(username);
+    loginError.textContent = '';
+    loginForm.reset();
+    return;
+  }
+
+  loginError.textContent = 'Usuario o clave incorrectos. Prueba: admin / 1234 o admin / admin123.';
+}
+
+function loginSuccess(username) {
+  state.user = username;
+  if (users[username]) {
+    localStorage.setItem(storageKeys.user, username);
+  }
+
+  sessionUser.textContent = `Conectado como: ${username}`;
+  setView(true);
+
+  renderCalendar();
+  renderDayEvents();
+  renderChat();
+}
+
+function logout() {
+  state.user = null;
+  localStorage.removeItem(storageKeys.user);
+  sessionUser.textContent = '';
+  loginError.textContent = '';
+  setView(false);
+}
+
+function setView(showApp) {
+  loginView.hidden = showApp;
+  appView.hidden = !showApp;
+  loginView.classList.toggle('hidden', showApp);
+  appView.classList.toggle('hidden', !showApp);
 }
 
 function renderCalendar() {
@@ -201,7 +202,7 @@ function renderCalendar() {
     dayBtn.type = 'button';
     dayBtn.innerHTML = `<div class="day-number">${day}</div>`;
 
-    const events = teams[state.teamKey].events[dateKey] || [];
+    const events = state.events[dateKey] || [];
     if (events.length) {
       const marker = document.createElement('div');
       marker.className = 'day-event';
@@ -225,13 +226,10 @@ function renderCalendar() {
 
     calendarGrid.appendChild(dayBtn);
   }
-
-  currentTeamName.textContent = teams[state.teamKey].name;
-  calendarSubtitle.textContent = teams[state.teamKey].subtitle;
 }
 
 function renderDayEvents() {
-  const events = teams[state.teamKey].events[state.selectedDate] || [];
+  const events = state.events[state.selectedDate] || [];
   eventsList.innerHTML = '';
 
   if (!events.length) {
@@ -248,6 +246,52 @@ function renderDayEvents() {
   });
 }
 
+function renderChat() {
+  chatList.innerHTML = '';
+
+  if (!state.chat.length) {
+    const empty = document.createElement('li');
+    empty.textContent = 'Aún no hay mensajes en el chat grupal.';
+    chatList.appendChild(empty);
+    return;
+  }
+
+  state.chat.forEach((message) => {
+    const item = document.createElement('li');
+    item.innerHTML = `<strong>${message.user}:</strong> ${message.text}<div class="chat-meta">${formatTimestamp(message.createdAt)}</div>`;
+    chatList.appendChild(item);
+  });
+}
+
+function persistEvents() {
+  localStorage.setItem(storageKeys.events, JSON.stringify(state.events));
+}
+
+function persistChat() {
+  localStorage.setItem(storageKeys.chat, JSON.stringify(state.chat));
+}
+
+function loadEvents() {
+  const raw = localStorage.getItem(storageKeys.events);
+  if (!raw) {
+    return {
+      '2026-04-20': ['Kickoff semanal del equipo'],
+      '2026-04-23': ['Cierre de pendientes del mes']
+    };
+  }
+
+  return JSON.parse(raw);
+}
+
+function loadChat() {
+  const raw = localStorage.getItem(storageKeys.chat);
+  if (!raw) {
+    return [];
+  }
+
+  return JSON.parse(raw);
+}
+
 function formatDate(date) {
   return date.toISOString().slice(0, 10);
 }
@@ -258,5 +302,14 @@ function formatHumanDate(dateString) {
     day: 'numeric',
     month: 'short',
     year: 'numeric'
+  });
+}
+
+function formatTimestamp(isoDate) {
+  return new Date(isoDate).toLocaleString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
   });
 }
