@@ -23,6 +23,7 @@ const loginForm = document.getElementById('login-form');
 const loginError = document.getElementById('login-error');
 const logoutBtn = document.getElementById('logout-btn');
 const previewBtn = document.getElementById('preview-btn');
+const sessionUser = document.getElementById('session-user');
 
 const monthTitle = document.getElementById('month-title');
 const calendarGrid = document.getElementById('calendar-grid');
@@ -38,6 +39,8 @@ const chatForm = document.getElementById('chat-form');
 init();
 
 function init() {
+  setView(false);
+
   if (window.location.hash === '#app') {
     loginSuccess('invitado');
   }
@@ -49,7 +52,10 @@ function init() {
 
   loginForm.addEventListener('submit', handleLogin);
   logoutBtn.addEventListener('click', logout);
-  previewBtn.addEventListener('click', () => loginSuccess('invitado'));
+  previewBtn.addEventListener('click', () => {
+    loginError.textContent = '';
+    loginSuccess('invitado');
+  });
 
   document.getElementById('prev-month').addEventListener('click', () => {
     state.currentDate.setMonth(state.currentDate.getMonth() - 1);
@@ -149,8 +155,8 @@ function loginSuccess(username) {
     localStorage.setItem(storageKeys.user, username);
   }
 
-  loginView.classList.add('hidden');
-  appView.classList.remove('hidden');
+  sessionUser.textContent = `Conectado como: ${username}`;
+  setView(true);
 
   renderCalendar();
   renderDayEvents();
@@ -160,9 +166,16 @@ function loginSuccess(username) {
 function logout() {
   state.user = null;
   localStorage.removeItem(storageKeys.user);
+  sessionUser.textContent = '';
+  loginError.textContent = '';
+  setView(false);
+}
 
-  appView.classList.add('hidden');
-  loginView.classList.remove('hidden');
+function setView(showApp) {
+  loginView.hidden = showApp;
+  appView.hidden = !showApp;
+  loginView.classList.toggle('hidden', showApp);
+  appView.classList.toggle('hidden', !showApp);
 }
 
 function renderCalendar() {

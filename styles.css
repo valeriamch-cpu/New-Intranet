@@ -166,6 +166,12 @@ textarea {
   z-index: 10;
 }
 
+.session-user {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .main-nav {
   display: flex;
   gap: 0.45rem;
