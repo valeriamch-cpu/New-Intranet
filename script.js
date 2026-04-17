@@ -2,18 +2,47 @@ const storageKeys = {
   events: 'intranet-group-events',
   notes: 'intranet-notes-board',
   chat: 'intranet-group-chat',
-  user: 'intranet-user'
+  user: 'intranet-user',
+  areas: 'intranet-areas'
 };
 
 const memoryStore = {};
+const users = {
+  admin: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  maria: { password: 'maria123', areas: ['finanzas'] },
+  pablo: { password: 'pablo123', areas: ['wholesale', 'operaciones'] },
+  vale: { password: 'vale123', areas: ['marketing'] },
+  invitado: { password: '', areas: ['wholesale'] }
+};
 
 const loginForm = document.getElementById('login-form');
 const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const loginError = document.getElementById('login-error');
+const previewBtn = document.getElementById('preview-btn');
 
-if (loginForm && usernameInput) {
-  loginForm.addEventListener('submit', () => {
-    const user = usernameInput.value.trim() || 'invitado';
+if (loginForm && usernameInput && passwordInput && loginError) {
+  loginForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const user = usernameInput.value.trim().toLowerCase();
+    const pass = passwordInput.value.trim();
+    const account = users[user];
+
+    if (!account || account.password !== pass) {
+      loginError.textContent = 'Usuario o clave inválidos.';
+      return;
+    }
+
     safeSet(storageKeys.user, user);
+    safeSet(storageKeys.areas, JSON.stringify(account.areas));
+    window.location.href = 'dashboard.html';
+  });
+}
+
+if (previewBtn) {
+  previewBtn.addEventListener('click', () => {
+    safeSet(storageKeys.user, 'invitado');
+    safeSet(storageKeys.areas, JSON.stringify(users.invitado.areas));
   });
 }
 
@@ -26,6 +55,7 @@ const clearNotesBtn = document.getElementById('clear-notes');
 const chatList = document.getElementById('chat-list');
 const chatForm = document.getElementById('chat-form');
 const sessionUser = document.getElementById('session-user');
+const logoutBtn = document.getElementById('logout-btn');
 
 const isDashboardPage = Boolean(monthTitle && calendarGrid && eventForm);
 
@@ -33,7 +63,15 @@ if (isDashboardPage) {
   initDashboard();
 }
 
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    safeRemove(storageKeys.user);
+    safeRemove(storageKeys.areas);
+  });
+}
+
 function initDashboard() {
+  const allowedAreas = loadAreas();
   const state = {
     currentDate: new Date(),
     selectedDate: formatDate(new Date()),
@@ -43,6 +81,7 @@ function initDashboard() {
   };
 
   sessionUser.textContent = `Conectado como: ${state.user}`;
+  applyAreaPermissions(allowedAreas);
   notesBoard.value = safeGet(storageKeys.notes) || '';
 
   renderCalendar();
@@ -138,6 +177,11 @@ function initDashboard() {
       const spacer = document.createElement('div');
       calendarGrid.appendChild(spacer);
     }
+  }
+
+  function renderDayEvents() {
+    const events = state.events[state.selectedDate] || [];
+    eventsList.innerHTML = '';
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(base.getFullYear(), base.getMonth(), day);
@@ -208,6 +252,31 @@ function initDashboard() {
   }
 }
 
+function applyAreaPermissions(allowedAreas) {
+  const links = document.querySelectorAll('[data-area]');
+  links.forEach((link) => {
+    const area = link.dataset.area;
+    if (allowedAreas.includes(area)) {
+      return;
+    }
+
+    link.classList.add('disabled');
+    link.removeAttribute('target');
+    link.setAttribute('aria-disabled', 'true');
+    link.setAttribute('title', 'Sin acceso para tu usuario');
+    link.href = '#';
+  });
+}
+
+function loadAreas() {
+  const raw = safeGet(storageKeys.areas);
+  if (!raw) {
+    return users.invitado.areas;
+  }
+  const parsed = safeJsonParse(raw, users.invitado.areas);
+  return Array.isArray(parsed) ? parsed : users.invitado.areas;
+}
+
 function loadEvents() {
   const raw = safeGet(storageKeys.events);
   if (!raw) {
@@ -236,35 +305,6 @@ function loadChat() {
 
   const parsed = safeJsonParse(raw, []);
   return Array.isArray(parsed) ? parsed : [];
-}
-
-function persistEvents() {
-  safeSet(storageKeys.events, JSON.stringify(state.events));
-}
-
-function persistChat() {
-  safeSet(storageKeys.chat, JSON.stringify(state.chat));
-}
-
-function loadEvents() {
-  const raw = safeGet(storageKeys.events);
-  if (!raw) {
-    return {
-      '2026-04-20': ['Kickoff semanal del equipo'],
-      '2026-04-23': ['Cierre de pendientes del mes']
-    };
-  }
-
-  return JSON.parse(raw);
-}
-
-function loadChat() {
-  const raw = safeGet(storageKeys.chat);
-  if (!raw) {
-    return [];
-  }
-
-  return JSON.parse(raw);
 }
 
 function formatDate(date) {

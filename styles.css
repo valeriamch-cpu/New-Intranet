@@ -197,6 +197,12 @@ textarea {
   border-color: var(--accent);
 }
 
+.main-nav a.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .container {
   max-width: 1220px;
   margin: 1rem auto;

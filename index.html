@@ -20,7 +20,7 @@
           <h1>Bienvenido al portal interno</h1>
           <p class="subtitle">Ingresa con tu usuario y clave para acceder al calendario, notas y chat grupal.</p>
 
-          <form id="login-form" class="login-form" action="dashboard.html" method="get">
+          <form id="login-form" class="login-form">
             <label>
               Usuario
               <input id="username" name="user" type="text" placeholder="Ej: admin" required />
@@ -31,9 +31,10 @@
             </label>
             <button class="btn" type="submit">Entrar</button>
             <a id="preview-btn" class="btn ghost block" href="dashboard.html">Ver intranet ahora</a>
+            <p id="login-error" class="error-message" role="alert"></p>
           </form>
 
-          <p class="hint">Acceso demo: puedes usar cualquier usuario y clave para entrar.</p>
+          <p class="hint">Acceso demo con permisos por área: admin/1234, maria/maria123, pablo/pablo123, vale/vale123.</p>
         </div>
       </div>
     </section>

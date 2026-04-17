@@ -52,6 +52,16 @@ Marketing: 1ghi...
 Operaciones: 1jkl...
 ```
 
+## Acceso restringido por usuario (demo)
+
+Usuarios habilitados:
+
+- `admin` / `1234` → acceso total.
+- `maria` / `maria123` → solo Finanzas.
+- `pablo` / `pablo123` → Wholesale + Operaciones.
+- `vale` / `vale123` → solo Marketing.
+- `invitado` (botón “Ver intranet ahora”) → solo Wholesale.
+
 ## Error común: “No permite actualizar porque fue por fuera”
 
 Si GitHub/Git te indica que no puedes actualizar porque el branch cambió “por fuera”, significa que hay commits remotos que no tienes localmente.
