@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intranet | Informes</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">
+        <div class="logo">N</div>
+        <div>
+          <p class="eyebrow">Intranet</p>
+          <h1>Neighborhood · Centro de Información Interno</h1>
+        </div>
+      </div>
+
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="index.html">Página principal</a>
+        <a class="active" href="informes.html">Informes</a>
+        <a href="index.html#pedidos">Pedidos</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="btn ghost" href="index.html">Volver al inicio</a>
+      </div>
+    </header>
+
+    <main class="container informes-page">
+      <section class="card welcome">
+        <h2>Informes y archivos compartidos</h2>
+        <p>
+          Desde esta vista se puede acceder a una carpeta en la nube y comparar documentos de referencia uno al lado del otro.
+        </p>
+      </section>
+
+      <section class="card reports-grid">
+        <article>
+          <h3>Carpeta en la nube (Google Drive)</h3>
+          <p class="muted-text">
+            Usa este acceso directo para subir, descargar y organizar informes del equipo.
+          </p>
+          <a
+            class="btn"
+            href="https://drive.google.com/drive/folders/"
+            target="_blank"
+            rel="noreferrer"
+            >Abrir carpeta de informes</a
+          >
+        </article>
+
+        <article>
+          <h3>Comparador rápido de archivos</h3>
+          <p class="muted-text">Selecciona dos documentos para revisarlos en paralelo.</p>
+
+          <div class="compare-controls">
+            <label>
+              Archivo A
+              <select id="file-a">
+                <option value="">Seleccionar…</option>
+                <option value="https://docs.google.com/document/d/1/edit?usp=sharing">Informe semanal</option>
+                <option value="https://docs.google.com/spreadsheets/d/1/edit?usp=sharing">Stock consolidado</option>
+                <option value="https://docs.google.com/presentation/d/1/edit?usp=sharing">Presentación gerencia</option>
+              </select>
+            </label>
+
+            <label>
+              Archivo B
+              <select id="file-b">
+                <option value="">Seleccionar…</option>
+                <option value="https://docs.google.com/document/d/1/edit?usp=sharing">Informe semanal</option>
+                <option value="https://docs.google.com/spreadsheets/d/1/edit?usp=sharing">Stock consolidado</option>
+                <option value="https://docs.google.com/presentation/d/1/edit?usp=sharing">Presentación gerencia</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="compare-view" id="compare-view">
+            <p class="muted-text">Elige dos archivos para habilitar la comparación.</p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const fileA = document.getElementById('file-a');
+      const fileB = document.getElementById('file-b');
+      const compareView = document.getElementById('compare-view');
+
+      function toPreviewUrl(url) {
+        if (!url) return '';
+        return url.replace('/edit?usp=sharing', '/preview');
+      }
+
+      function renderComparison() {
+        if (!fileA.value || !fileB.value) {
+          compareView.innerHTML = '<p class="muted-text">Elige dos archivos para habilitar la comparación.</p>';
+          return;
+        }
+
+        compareView.innerHTML = `
+          <iframe title="Archivo A" src="${toPreviewUrl(fileA.value)}" loading="lazy"></iframe>
+          <iframe title="Archivo B" src="${toPreviewUrl(fileB.value)}" loading="lazy"></iframe>
+        `;
+      }
+
+      fileA.addEventListener('change', renderComparison);
+      fileB.addEventListener('change', renderComparison);
+    </script>
+  </body>
+</html>
