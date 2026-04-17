@@ -1,13 +1,12 @@
 # New-Intranet
 
-Prototipo de intranet estática inspirado en su estructura de Google Sites:
+Prototipo de intranet web con:
 
-- Navegación principal tipo portal (Página principal / Informes / Pedidos).
-- Bloque de bienvenida.
-- Resumen de reunión anterior en formato lista.
-- Tarjetas de temas pendientes y fechas de importación.
-- Calendario por equipo (Operaciones, Finanzas, Wholesale, Marketing y Gestión).
-- Formulario para agregar eventos al equipo seleccionado.
+- Pantalla de acceso (login + vista previa).
+- Panel con calendario grupal.
+- Pizarra de notas compartida.
+- Chat grupal.
+- Persistencia en navegador con `localStorage`.
 
 ## Verlo en local
 
@@ -17,6 +16,10 @@ python3 -m http.server 8080
 
 Luego abrir: `http://localhost:8080`
 
+Flujo de páginas:
+- `index.html` = acceso.
+- `dashboard.html` = calendario + pizarra + chat.
+
 ## Publicación en GitHub Pages
 
 URL esperada del proyecto:
@@ -25,6 +28,104 @@ URL esperada del proyecto:
 
 ## Personalización rápida
 
-- Edita `intranetContent` en `script.js` para cambiar resumen, pendientes e importaciones.
-- Edita `teams` en `script.js` para ajustar eventos por área.
-- Cambia links del header en `index.html` si necesitas apuntar a tus rutas internas reales.
+- Cambia los links de áreas en `dashboard.html` para apuntar a carpetas reales de Drive (`https://drive.google.com/drive/folders/<ID_CARPETA>`).
+- Ajusta usuarios/clave demo en `script.js` dentro de la constante `users`.
+- Limpia datos de demo en el navegador borrando `localStorage` del sitio.
+
+### ¿Cómo me pasas los links de Drive?
+
+Mándamelos aquí en este formato (copiar/pegar):
+
+```text
+Wholesale: https://drive.google.com/drive/folders/...
+Finanzas: https://drive.google.com/drive/folders/...
+Marketing: https://drive.google.com/drive/folders/...
+Operaciones: https://drive.google.com/drive/folders/...
+```
+
+Si no quieres pasar el link completo, también sirve solo el ID de carpeta:
+
+```text
+Wholesale: 1abc...
+Finanzas: 1def...
+Marketing: 1ghi...
+Operaciones: 1jkl...
+```
+
+## Acceso restringido por usuario (demo)
+
+Usuarios habilitados:
+
+- `valeria` / `1207` → acceso total.
+- `veronica` / `1234` → acceso total.
+- `valentina` / `5678` → acceso total.
+- `sandra` / `9112` → acceso total.
+- `carlos` / `1234` → acceso total.
+- `luis` / `5678` → acceso total.
+- `juan` / `9112` → acceso total.
+- `margarita` / `1234` → acceso total.
+- `sofia` / `5678` → acceso total.
+- `teresita` / `9112` → acceso total.
+- `invitado` (botón “Ver intranet ahora”) → solo Wholesale.
+
+## Error común: “No permite actualizar porque fue por fuera”
+
+Si GitHub/Git te indica que no puedes actualizar porque el branch cambió “por fuera”, significa que hay commits remotos que no tienes localmente.
+
+Pasos recomendados:
+
+```bash
+git fetch origin
+git pull --rebase origin <tu-rama>
+```
+
+Si hay conflictos:
+
+```bash
+git status
+# editar archivos con conflicto
+git add <archivo>
+git rebase --continue
+```
+
+Luego:
+
+```bash
+git push origin <tu-rama>
+```
+
+Si prefieres evitar rebase:
+
+```bash
+git pull origin <tu-rama>
+git push origin <tu-rama>
+```
+
+## ¿En qué parte escribo esos comandos? (paso a paso, nivel cero)
+
+No te preocupes, es normal. Haz esto:
+
+1. Abre **GitHub Desktop** o una **terminal** (CMD / PowerShell / Terminal de VS Code).
+2. Entra a la carpeta del proyecto (`New-Intranet`).
+3. Copia y pega los comandos **uno por uno** y presiona Enter.
+
+Si usas VS Code:
+
+1. Abre la carpeta `New-Intranet`.
+2. Menú **Terminal > New Terminal**.
+3. Verifica que la ruta termine en `New-Intranet`.
+4. Ejecuta:
+
+```bash
+git fetch origin
+git pull --rebase origin <tu-rama>
+git push origin <tu-rama>
+```
+
+Si no sabes tu rama, ejecuta:
+
+```bash
+git branch --show-current
+```
+
+Ese nombre reemplaza `<tu-rama>`.
