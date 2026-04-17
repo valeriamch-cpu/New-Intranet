@@ -22,6 +22,7 @@ const appView = document.getElementById('app-view');
 const loginForm = document.getElementById('login-form');
 const loginError = document.getElementById('login-error');
 const logoutBtn = document.getElementById('logout-btn');
+const previewBtn = document.getElementById('preview-btn');
 
 const monthTitle = document.getElementById('month-title');
 const calendarGrid = document.getElementById('calendar-grid');
@@ -37,13 +38,18 @@ const chatForm = document.getElementById('chat-form');
 init();
 
 function init() {
+  if (window.location.hash === '#app') {
+    loginSuccess('invitado');
+  }
+
   const savedUser = localStorage.getItem(storageKeys.user);
-  if (savedUser && users[savedUser]) {
+  if (!state.user && savedUser && users[savedUser]) {
     loginSuccess(savedUser);
   }
 
   loginForm.addEventListener('submit', handleLogin);
   logoutBtn.addEventListener('click', logout);
+  previewBtn.addEventListener('click', () => loginSuccess('invitado'));
 
   document.getElementById('prev-month').addEventListener('click', () => {
     state.currentDate.setMonth(state.currentDate.getMonth() - 1);
@@ -139,7 +145,9 @@ function handleLogin(event) {
 
 function loginSuccess(username) {
   state.user = username;
-  localStorage.setItem(storageKeys.user, username);
+  if (users[username]) {
+    localStorage.setItem(storageKeys.user, username);
+  }
 
   loginView.classList.add('hidden');
   appView.classList.remove('hidden');
