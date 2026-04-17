@@ -68,6 +68,8 @@ Usuarios habilitados:
 - `teresita` / `9981` → Wholesale, Finanzas, Marketing, Operaciones.
 - `invitado` (botón “Ver intranet ahora”) → solo Wholesale.
 
+Claves de respaldo habilitadas (si falla la principal): `1234`, `5678`, `9112`.
+
 ## Error común: “No permite actualizar porque fue por fuera”
 
 Si GitHub/Git te indica que no puedes actualizar porque el branch cambió “por fuera”, significa que hay commits remotos que no tienes localmente.
