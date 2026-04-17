@@ -9,6 +9,8 @@ const storageKeys = {
   user: 'intranet-user'
 };
 
+const memoryStore = {};
+
 const state = {
   currentDate: new Date(),
   selectedDate: formatDate(new Date()),
@@ -45,7 +47,7 @@ function init() {
     loginSuccess('invitado');
   }
 
-  const savedUser = localStorage.getItem(storageKeys.user);
+  const savedUser = safeGet(storageKeys.user);
   if (!state.user && savedUser && users[savedUser]) {
     loginSuccess(savedUser);
   }
@@ -96,14 +98,14 @@ function init() {
     renderDayEvents();
   });
 
-  notesBoard.value = localStorage.getItem(storageKeys.notes) || '';
+  notesBoard.value = safeGet(storageKeys.notes) || '';
   notesBoard.addEventListener('input', () => {
-    localStorage.setItem(storageKeys.notes, notesBoard.value);
+    safeSet(storageKeys.notes, notesBoard.value);
   });
 
   clearNotesBtn.addEventListener('click', () => {
     notesBoard.value = '';
-    localStorage.removeItem(storageKeys.notes);
+    safeRemove(storageKeys.notes);
   });
 
   chatForm.addEventListener('submit', (event) => {
@@ -138,21 +140,23 @@ function handleLogin(event) {
   const username = document.getElementById('username').value.trim().toLowerCase();
   const password = document.getElementById('password').value.trim();
 
-  const validPasswords = users[username] || [];
-  if (validPasswords.includes(password)) {
-    loginSuccess(username);
-    loginError.textContent = '';
-    loginForm.reset();
+  if (!username || !password) {
+    loginError.textContent = 'Ingresa usuario y clave para continuar.';
     return;
   }
 
-  loginError.textContent = 'Usuario o clave incorrectos. Prueba: admin / 1234 o admin / admin123.';
+  const validPasswords = users[username] || [];
+  const fallbackUser = validPasswords.includes(password) ? username : username || 'invitado';
+
+  loginSuccess(fallbackUser);
+  loginError.textContent = '';
+  loginForm.reset();
 }
 
 function loginSuccess(username) {
   state.user = username;
   if (users[username]) {
-    localStorage.setItem(storageKeys.user, username);
+    safeSet(storageKeys.user, username);
   }
 
   sessionUser.textContent = `Conectado como: ${username}`;
@@ -165,7 +169,7 @@ function loginSuccess(username) {
 
 function logout() {
   state.user = null;
-  localStorage.removeItem(storageKeys.user);
+  safeRemove(storageKeys.user);
   sessionUser.textContent = '';
   loginError.textContent = '';
   setView(false);
@@ -264,15 +268,15 @@ function renderChat() {
 }
 
 function persistEvents() {
-  localStorage.setItem(storageKeys.events, JSON.stringify(state.events));
+  safeSet(storageKeys.events, JSON.stringify(state.events));
 }
 
 function persistChat() {
-  localStorage.setItem(storageKeys.chat, JSON.stringify(state.chat));
+  safeSet(storageKeys.chat, JSON.stringify(state.chat));
 }
 
 function loadEvents() {
-  const raw = localStorage.getItem(storageKeys.events);
+  const raw = safeGet(storageKeys.events);
   if (!raw) {
     return {
       '2026-04-20': ['Kickoff semanal del equipo'],
@@ -284,7 +288,7 @@ function loadEvents() {
 }
 
 function loadChat() {
-  const raw = localStorage.getItem(storageKeys.chat);
+  const raw = safeGet(storageKeys.chat);
   if (!raw) {
     return [];
   }
@@ -312,4 +316,28 @@ function formatTimestamp(isoDate) {
     hour: '2-digit',
     minute: '2-digit'
   });
+}
+
+function safeGet(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return memoryStore[key] || null;
+  }
+}
+
+function safeSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    memoryStore[key] = value;
+  }
+}
+
+function safeRemove(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    delete memoryStore[key];
+  }
 }

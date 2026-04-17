@@ -207,6 +207,13 @@ textarea {
   padding: 1rem;
 }
 
+.onboarding-card ul {
+  margin: 0.7rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
 .section-head {
   display: flex;
   justify-content: space-between;
