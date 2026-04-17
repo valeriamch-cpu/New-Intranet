@@ -3,107 +3,121 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Intranet | Centro de Información Interno</title>
+    <title>Intranet Profesional</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="brand">
-        <div class="logo">N</div>
+    <section id="login-view" class="login-view">
+      <div class="login-card">
+        <div class="hero-image logo-hero" role="img" aria-label="Bienvenido Intranet">
+          <p class="logo-title">BIENVENIDO</p>
+          <p class="logo-title">INTRANET</p>
+          <p class="logo-subtitle">STREETMARKET</p>
+        </div>
+        <div class="login-content">
+          <p class="eyebrow">Intranet</p>
+          <h1>Bienvenido al portal interno</h1>
+          <p class="subtitle">Ingresa con tu usuario y clave para acceder al calendario, notas y chat grupal.</p>
+
+          <form id="login-form" class="login-form">
+            <label>
+              Usuario
+              <input id="username" name="username" type="text" placeholder="Ej: admin" required />
+            </label>
+            <label>
+              Clave
+              <input id="password" name="password" type="password" placeholder="••••••••" required />
+            </label>
+            <button class="btn" type="submit">Entrar</button>
+            <button id="preview-btn" class="btn ghost" type="button">Ver intranet ahora</button>
+            <p id="login-error" class="error-message" role="alert"></p>
+          </form>
+
+          <p class="hint">
+            Demo inicial: usuario <strong>admin</strong> y claves válidas <strong>1234</strong> o
+            <strong>admin123</strong>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="app-view" class="app-view hidden">
+      <header class="site-header">
         <div>
           <p class="eyebrow">Intranet</p>
-          <h1>Neighborhood · Centro de Información Interno</h1>
+          <h2>Panel principal</h2>
         </div>
-      </div>
 
-      <nav class="main-nav" aria-label="Navegación principal">
-        <a class="active" href="#">Página principal</a>
-        <a href="informes.html">Informes</a>
-        <a href="#pedidos">Pedidos</a>
-      </nav>
+        <nav class="main-nav" aria-label="Secciones con carpetas Drive">
+          <a href="https://drive.google.com" target="_blank" rel="noreferrer">Wholesale</a>
+          <a href="https://drive.google.com" target="_blank" rel="noreferrer">Finanzas</a>
+          <a href="https://drive.google.com" target="_blank" rel="noreferrer">Marketing</a>
+          <a href="https://drive.google.com" target="_blank" rel="noreferrer">Operaciones</a>
+        </nav>
 
-      <div class="header-actions">
-        <a class="btn ghost" href="https://sites.google.com/zoop.cl/informes/p%C3%A1gina-principal" target="_blank" rel="noreferrer">Ver referencia Google Sites</a>
-        <a class="btn" href="https://valeriamch-cpu.github.io/New-Intranet/" target="_blank" rel="noreferrer">Abrir intranet publicada</a>
-      </div>
-    </header>
+        <button id="logout-btn" class="btn ghost" type="button">Cerrar sesión</button>
+      </header>
 
-    <main class="container">
-      <section class="welcome card">
-        <h2>Bienvenidos 👋</h2>
-        <p>Este inicio sigue la estructura de su Google Sites: resumen operativo, temas pendientes, importaciones y accesos por equipo.</p>
-      </section>
-
-      <section class="content-grid">
-        <article class="card meeting" id="informes">
+      <main class="container">
+        <section class="card">
           <div class="section-head">
-            <h3>Resumen reunión anterior</h3>
-            <span>Actualizado hoy</span>
-          </div>
-          <ol id="meeting-points" class="meeting-points"></ol>
-        </article>
-
-        <aside class="side-stack">
-          <section class="card" id="pedidos">
-            <h3>Temas pendientes</h3>
-            <ul id="pending-list" class="simple-list"></ul>
-          </section>
-
-          <section class="card">
-            <h3>Fecha próximos importaciones</h3>
-            <ul id="imports-list" class="simple-list"></ul>
-          </section>
-        </aside>
-      </section>
-
-      <section class="card teams">
-        <div class="section-head">
-          <h3>Calendario por equipo</h3>
-          <button id="today-btn" class="btn ghost" type="button">Ir a hoy</button>
-        </div>
-
-        <nav id="team-nav" class="team-nav"></nav>
-
-        <div class="calendar-wrapper">
-          <div class="calendar-panel">
-            <div class="calendar-header">
-              <div>
-                <h4 id="current-team-name">Calendario principal</h4>
-                <p id="calendar-subtitle">Eventos importantes de la empresa</p>
-              </div>
-              <div class="month-controls">
-                <button id="prev-month" type="button">◀</button>
-                <strong id="month-title"></strong>
-                <button id="next-month" type="button">▶</button>
-              </div>
-            </div>
-
-            <div class="calendar-grid-head">
-              <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
-            </div>
-            <div id="calendar-grid" class="calendar-grid"></div>
+            <h3>Calendario grupal de eventos</h3>
+            <button id="today-btn" class="btn ghost" type="button">Ir a hoy</button>
           </div>
 
-          <aside class="events-panel">
-            <h4>Eventos del día</h4>
+          <div class="calendar-header">
+            <button id="prev-month" type="button">◀</button>
+            <strong id="month-title"></strong>
+            <button id="next-month" type="button">▶</button>
+          </div>
+
+          <div class="calendar-grid-head">
+            <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+          </div>
+          <div id="calendar-grid" class="calendar-grid"></div>
+
+          <div class="event-layout">
             <ul id="events-list" class="events-list"></ul>
 
             <form id="event-form" class="event-form">
-              <h5>Agregar evento</h5>
+              <h4>Agregar evento grupal</h4>
               <label>
                 Fecha
-                <input type="date" id="event-date" required />
+                <input id="event-date" type="date" required />
               </label>
               <label>
                 Título
-                <input type="text" id="event-title" placeholder="Ej: Reunión comercial" required />
+                <input id="event-title" type="text" placeholder="Ej: Reunión semanal" required />
               </label>
               <button class="btn" type="submit">Guardar evento</button>
             </form>
-          </aside>
-        </div>
-      </section>
-    </main>
+          </div>
+        </section>
+
+        <section class="grid-2">
+          <article class="card notes-card">
+            <div class="section-head">
+              <h3>Pizarra de notas</h3>
+              <button id="clear-notes" class="btn ghost" type="button">Limpiar</button>
+            </div>
+            <textarea
+              id="notes-board"
+              placeholder="Escribe aquí recordatorios, acuerdos y tareas para todo el equipo..."
+            ></textarea>
+          </article>
+
+          <article class="card chat-card">
+            <h3>Chat grupal</h3>
+            <ul id="chat-list" class="chat-list"></ul>
+
+            <form id="chat-form" class="chat-form">
+              <input id="chat-message" type="text" placeholder="Escribe un mensaje al equipo" required />
+              <button class="btn" type="submit">Enviar</button>
+            </form>
+          </article>
+        </section>
+      </main>
+    </section>
 
     <script src="script.js"></script>
   </body>
