@@ -238,23 +238,6 @@ function loadChat() {
   return Array.isArray(parsed) ? parsed : [];
 }
 
-function renderChat() {
-  chatList.innerHTML = '';
-
-  if (!state.chat.length) {
-    const empty = document.createElement('li');
-    empty.textContent = 'Aún no hay mensajes en el chat grupal.';
-    chatList.appendChild(empty);
-    return;
-  }
-
-  state.chat.forEach((message) => {
-    const item = document.createElement('li');
-    item.innerHTML = `<strong>${message.user}:</strong> ${message.text}<div class="chat-meta">${formatTimestamp(message.createdAt)}</div>`;
-    chatList.appendChild(item);
-  });
-}
-
 function persistEvents() {
   safeSet(storageKeys.events, JSON.stringify(state.events));
 }

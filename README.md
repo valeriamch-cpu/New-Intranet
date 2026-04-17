@@ -28,9 +28,29 @@ URL esperada del proyecto:
 
 ## Personalización rápida
 
-- Cambia los links de áreas (`Wholesale`, `Finanzas`, `Marketing`, `Operaciones`) en `index.html` para apuntar a carpetas reales de Drive.
+- Cambia los links de áreas en `dashboard.html` para apuntar a carpetas reales de Drive (`https://drive.google.com/drive/folders/<ID_CARPETA>`).
 - Ajusta usuarios/clave demo en `script.js` dentro de la constante `users`.
 - Limpia datos de demo en el navegador borrando `localStorage` del sitio.
+
+### ¿Cómo me pasas los links de Drive?
+
+Mándamelos aquí en este formato (copiar/pegar):
+
+```text
+Wholesale: https://drive.google.com/drive/folders/...
+Finanzas: https://drive.google.com/drive/folders/...
+Marketing: https://drive.google.com/drive/folders/...
+Operaciones: https://drive.google.com/drive/folders/...
+```
+
+Si no quieres pasar el link completo, también sirve solo el ID de carpeta:
+
+```text
+Wholesale: 1abc...
+Finanzas: 1def...
+Marketing: 1ghi...
+Operaciones: 1jkl...
+```
 
 ## Error común: “No permite actualizar porque fue por fuera”
 
