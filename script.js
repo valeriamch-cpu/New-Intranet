@@ -177,6 +177,11 @@ function initDashboard() {
       const spacer = document.createElement('div');
       calendarGrid.appendChild(spacer);
     }
+  }
+
+  function renderDayEvents() {
+    const events = state.events[state.selectedDate] || [];
+    eventsList.innerHTML = '';
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(base.getFullYear(), base.getMonth(), day);
