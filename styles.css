@@ -48,6 +48,34 @@ body {
   object-fit: cover;
 }
 
+.logo-hero {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.2rem;
+  background: #e5e7eb;
+  padding: 1rem;
+}
+
+.logo-title {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: 0.9;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  font-style: italic;
+  text-transform: uppercase;
+  transform: skewX(-10deg);
+}
+
+.logo-subtitle {
+  margin: 0.2rem 0 0;
+  font-size: clamp(0.75rem, 1.7vw, 1rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .login-content {
   padding: 1.2rem;
   display: grid;

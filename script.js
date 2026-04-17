@@ -1,5 +1,5 @@
 const users = {
-  admin: '1234'
+  admin: ['1234', 'admin123']
 };
 
 const storageKeys = {
@@ -123,17 +123,18 @@ function init() {
 function handleLogin(event) {
   event.preventDefault();
 
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
+  const username = document.getElementById('username').value.trim().toLowerCase();
+  const password = document.getElementById('password').value.trim();
 
-  if (users[username] && users[username] === password) {
+  const validPasswords = users[username] || [];
+  if (validPasswords.includes(password)) {
     loginSuccess(username);
     loginError.textContent = '';
     loginForm.reset();
     return;
   }
 
-  loginError.textContent = 'Usuario o clave incorrectos.';
+  loginError.textContent = 'Usuario o clave incorrectos. Prueba: admin / 1234 o admin / admin123.';
 }
 
 function loginSuccess(username) {
