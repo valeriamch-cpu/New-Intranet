@@ -56,10 +56,16 @@ Operaciones: 1jkl...
 
 Usuarios habilitados:
 
-- `admin` / `1234` → acceso total.
-- `maria` / `maria123` → solo Finanzas.
-- `pablo` / `pablo123` → Wholesale + Operaciones.
-- `vale` / `vale123` → solo Marketing.
+- `valeria` / `1207` → acceso total.
+- `veronica` / `1234` → acceso total.
+- `valentina` / `5678` → acceso total.
+- `sandra` / `9112` → acceso total.
+- `carlos` / `1234` → acceso total.
+- `luis` / `5678` → acceso total.
+- `juan` / `9112` → acceso total.
+- `margarita` / `1234` → acceso total.
+- `sofia` / `5678` → acceso total.
+- `teresita` / `9112` → acceso total.
 - `invitado` (botón “Ver intranet ahora”) → solo Wholesale.
 
 ## Error común: “No permite actualizar porque fue por fuera”

@@ -8,10 +8,16 @@ const storageKeys = {
 
 const memoryStore = {};
 const users = {
-  admin: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  maria: { password: 'maria123', areas: ['finanzas'] },
-  pablo: { password: 'pablo123', areas: ['wholesale', 'operaciones'] },
-  vale: { password: 'vale123', areas: ['marketing'] },
+  valeria: { password: '1207', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  veronica: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  valentina: { password: '5678', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  sandra: { password: '9112', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  carlos: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  luis: { password: '5678', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  juan: { password: '9112', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  margarita: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  sofia: { password: '5678', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  teresita: { password: '9112', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
   invitado: { password: '', areas: ['wholesale'] }
 };
 
@@ -178,10 +184,6 @@ function initDashboard() {
       calendarGrid.appendChild(spacer);
     }
   }
-
-  function renderDayEvents() {
-    const events = state.events[state.selectedDate] || [];
-    eventsList.innerHTML = '';
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(base.getFullYear(), base.getMonth(), day);
