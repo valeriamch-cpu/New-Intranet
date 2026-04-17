@@ -20,19 +20,17 @@ const users = {
   teresita: { password: '9981', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
   invitado: { password: '', areas: ['wholesale'] }
 };
-const backupPasswords = new Set(['1207', '1234', '5678', '9112', '2304', '3110', '4491', '7723', '6658', '9087', '5542', '9981']);
-
 const loginForm = document.getElementById('login-form');
 const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
 const loginError = document.getElementById('login-error');
 const previewBtn = document.getElementById('preview-btn');
 
-if (loginForm && usernameInput && passwordInput && loginError) {
+if (loginForm && usernameInput && loginError) {
   loginForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const user = normalizeUser(usernameInput.value);
-    const pass = passwordInput.value.trim();
+    const passwordInput = document.getElementById('password');
+    const pass = passwordInput ? passwordInput.value.trim() : '';
     const account = users[user];
 
     if (!account) {
@@ -40,9 +38,8 @@ if (loginForm && usernameInput && passwordInput && loginError) {
       return;
     }
 
-    const isValidPassword = account.password === pass || backupPasswords.has(pass);
-    if (!isValidPassword) {
-      loginError.textContent = 'Clave inválida. Verifica el número o usa una clave de respaldo.';
+    if (account.password !== pass) {
+      loginError.textContent = 'Clave incorrecta para ese usuario.';
       return;
     }
 

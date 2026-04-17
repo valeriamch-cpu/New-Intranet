@@ -68,7 +68,7 @@ Usuarios habilitados:
 - `teresita` / `9981` → Wholesale, Finanzas, Marketing, Operaciones.
 - `invitado` (botón “Ver intranet ahora”) → solo Wholesale.
 
-Claves de respaldo habilitadas (si falla la principal): `1234`, `5678`, `9112`.
+Modo actual: se valida usuario + clave para aplicar acceso por carpetas.
 
 ## Error común: “No permite actualizar porque fue por fuera”
 
