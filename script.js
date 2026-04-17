@@ -238,6 +238,35 @@ function loadChat() {
   return Array.isArray(parsed) ? parsed : [];
 }
 
+function persistEvents() {
+  safeSet(storageKeys.events, JSON.stringify(state.events));
+}
+
+function persistChat() {
+  safeSet(storageKeys.chat, JSON.stringify(state.chat));
+}
+
+function loadEvents() {
+  const raw = safeGet(storageKeys.events);
+  if (!raw) {
+    return {
+      '2026-04-20': ['Kickoff semanal del equipo'],
+      '2026-04-23': ['Cierre de pendientes del mes']
+    };
+  }
+
+  return JSON.parse(raw);
+}
+
+function loadChat() {
+  const raw = safeGet(storageKeys.chat);
+  if (!raw) {
+    return [];
+  }
+
+  return JSON.parse(raw);
+}
+
 function formatDate(date) {
   return date.toISOString().slice(0, 10);
 }
