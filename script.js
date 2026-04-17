@@ -9,15 +9,15 @@ const storageKeys = {
 const memoryStore = {};
 const users = {
   valeria: { password: '1207', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  veronica: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  valentina: { password: '5678', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  sandra: { password: '9112', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  carlos: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  luis: { password: '5678', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  juan: { password: '9112', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  margarita: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  sofia: { password: '5678', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  teresita: { password: '9112', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  veronica: { password: '2304', areas: ['operaciones'] },
+  valentina: { password: '3110', areas: ['marketing', 'wholesale'] },
+  sandra: { password: '4491', areas: ['finanzas'] },
+  carlos: { password: '7723', areas: ['wholesale', 'marketing'] },
+  luis: { password: '6658', areas: ['finanzas'] },
+  juan: { password: '9087', areas: ['marketing'] },
+  margarita: { password: '5542', areas: ['marketing'] },
+  sofia: { password: '1203', areas: ['finanzas', 'marketing'] },
+  teresita: { password: '9981', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
   invitado: { password: '', areas: ['wholesale'] }
 };
 
@@ -30,12 +30,12 @@ const previewBtn = document.getElementById('preview-btn');
 if (loginForm && usernameInput && passwordInput && loginError) {
   loginForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const user = usernameInput.value.trim().toLowerCase();
+    const user = normalizeUser(usernameInput.value);
     const pass = passwordInput.value.trim();
     const account = users[user];
 
     if (!account || account.password !== pass) {
-      loginError.textContent = 'Usuario o clave inválidos.';
+      loginError.textContent = 'Usuario o clave inválidos. Si el nombre lleva tilde, escríbelo sin tilde.';
       return;
     }
 
@@ -361,4 +361,12 @@ function safeJsonParse(rawValue, fallbackValue) {
   } catch {
     return fallbackValue;
   }
+}
+
+function normalizeUser(value) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 }
