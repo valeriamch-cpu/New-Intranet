@@ -103,6 +103,19 @@ git pull origin <tu-rama>
 git push origin <tu-rama>
 ```
 
+## Si lo ves con “otro color” (oscuro/azul)
+
+Eso normalmente **no es la intranet**, sino el tema visual de GitHub (modo oscuro).
+
+Para validar la intranet real:
+
+1. Abre la URL publicada del sitio (no el PR):  
+   `https://valeriamch-cpu.github.io/New-Intranet/`
+2. Haz recarga forzada del navegador:
+   - Windows: `Ctrl + F5`
+   - Mac: `Cmd + Shift + R`
+3. Si sigue igual, abre en modo incógnito para evitar caché.
+
 ## ¿En qué parte escribo esos comandos? (paso a paso, nivel cero)
 
 No te preocupes, es normal. Haz esto:
