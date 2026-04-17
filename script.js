@@ -9,15 +9,15 @@ const storageKeys = {
 const memoryStore = {};
 const users = {
   valeria: { password: '1207', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  veronica: { password: '2304', areas: ['operaciones'] },
-  valentina: { password: '3110', areas: ['marketing', 'wholesale'] },
-  sandra: { password: '4491', areas: ['finanzas'] },
-  carlos: { password: '7723', areas: ['wholesale', 'marketing'] },
-  luis: { password: '6658', areas: ['finanzas'] },
-  juan: { password: '9087', areas: ['marketing'] },
-  margarita: { password: '5542', areas: ['marketing'] },
-  sofia: { password: '1203', areas: ['finanzas', 'marketing'] },
-  teresita: { password: '9981', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  veronica: { password: '1234', areas: ['operaciones'] },
+  valentina: { password: '5678', areas: ['marketing', 'wholesale'] },
+  sandra: { password: '9112', areas: ['finanzas'] },
+  carlos: { password: '1234', areas: ['wholesale', 'marketing'] },
+  luis: { password: '5678', areas: ['finanzas'] },
+  juan: { password: '9112', areas: ['marketing'] },
+  margarita: { password: '1234', areas: ['marketing'] },
+  sofia: { password: '5678', areas: ['finanzas', 'marketing'] },
+  teresita: { password: '9112', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
   invitado: { password: '', areas: ['wholesale'] }
 };
 const loginForm = document.getElementById('login-form');

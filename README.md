@@ -57,15 +57,15 @@ Operaciones: 1jkl...
 Usuarios habilitados:
 
 - `valeria` / `1207` → Wholesale, Finanzas, Marketing, Operaciones.
-- `veronica` / `2304` → Operaciones.
-- `valentina` / `3110` → Marketing, Wholesale.
-- `sandra` / `4491` → Finanzas.
-- `carlos` / `7723` → Wholesale, Marketing.
-- `luis` / `6658` → Finanzas.
-- `juan` / `9087` → Marketing.
-- `margarita` / `5542` → Marketing.
-- `sofia` / `1203` → Finanzas, Marketing.
-- `teresita` / `9981` → Wholesale, Finanzas, Marketing, Operaciones.
+- `veronica` / `1234` → Operaciones.
+- `valentina` / `5678` → Marketing, Wholesale.
+- `sandra` / `9112` → Finanzas.
+- `carlos` / `1234` → Wholesale, Marketing.
+- `luis` / `5678` → Finanzas.
+- `juan` / `9112` → Marketing.
+- `margarita` / `1234` → Marketing.
+- `sofia` / `5678` → Finanzas, Marketing.
+- `teresita` / `9112` → Wholesale, Finanzas, Marketing, Operaciones.
 - `invitado` (botón “Ver intranet ahora”) → solo Wholesale.
 
 Modo actual: se valida usuario + clave para aplicar acceso por carpetas.
