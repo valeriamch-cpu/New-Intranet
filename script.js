@@ -1,7 +1,3 @@
-const users = {
-  admin: ['1234', 'admin123']
-};
-
 const storageKeys = {
   events: 'intranet-group-events',
   notes: 'intranet-notes-board',
@@ -11,53 +7,47 @@ const storageKeys = {
 
 const memoryStore = {};
 
-const state = {
-  currentDate: new Date(),
-  selectedDate: formatDate(new Date()),
-  user: null,
-  events: loadEvents(),
-  chat: loadChat()
-};
-
-const loginView = document.getElementById('login-view');
-const appView = document.getElementById('app-view');
 const loginForm = document.getElementById('login-form');
-const loginError = document.getElementById('login-error');
-const logoutBtn = document.getElementById('logout-btn');
-const previewBtn = document.getElementById('preview-btn');
-const sessionUser = document.getElementById('session-user');
+const usernameInput = document.getElementById('username');
+
+if (loginForm && usernameInput) {
+  loginForm.addEventListener('submit', () => {
+    const user = usernameInput.value.trim() || 'invitado';
+    safeSet(storageKeys.user, user);
+  });
+}
 
 const monthTitle = document.getElementById('month-title');
 const calendarGrid = document.getElementById('calendar-grid');
 const eventsList = document.getElementById('events-list');
 const eventForm = document.getElementById('event-form');
-
 const notesBoard = document.getElementById('notes-board');
 const clearNotesBtn = document.getElementById('clear-notes');
-
 const chatList = document.getElementById('chat-list');
 const chatForm = document.getElementById('chat-form');
+const sessionUser = document.getElementById('session-user');
 
-init();
+const isDashboardPage = Boolean(monthTitle && calendarGrid && eventForm);
 
-function init() {
-  setView(false);
+if (isDashboardPage) {
+  initDashboard();
+}
 
-  if (window.location.hash === '#app') {
-    loginSuccess('invitado');
-  }
+function initDashboard() {
+  const state = {
+    currentDate: new Date(),
+    selectedDate: formatDate(new Date()),
+    user: safeGet(storageKeys.user) || 'invitado',
+    events: loadEvents(),
+    chat: loadChat()
+  };
 
-  const savedUser = safeGet(storageKeys.user);
-  if (!state.user && savedUser && users[savedUser]) {
-    loginSuccess(savedUser);
-  }
+  sessionUser.textContent = `Conectado como: ${state.user}`;
+  notesBoard.value = safeGet(storageKeys.notes) || '';
 
-  loginForm.addEventListener('submit', handleLogin);
-  logoutBtn.addEventListener('click', logout);
-  previewBtn.addEventListener('click', () => {
-    loginError.textContent = '';
-    loginSuccess('invitado');
-  });
+  renderCalendar();
+  renderDayEvents();
+  renderChat();
 
   document.getElementById('prev-month').addEventListener('click', () => {
     state.currentDate.setMonth(state.currentDate.getMonth() - 1);
@@ -88,7 +78,7 @@ function init() {
 
     state.events[date] = state.events[date] || [];
     state.events[date].push(title);
-    persistEvents();
+    safeSet(storageKeys.events, JSON.stringify(state.events));
 
     state.selectedDate = date;
     state.currentDate = new Date(`${date}T00:00:00`);
@@ -98,7 +88,6 @@ function init() {
     renderDayEvents();
   });
 
-  notesBoard.value = safeGet(storageKeys.notes) || '';
   notesBoard.addEventListener('input', () => {
     safeSet(storageKeys.notes, notesBoard.value);
   });
@@ -114,7 +103,7 @@ function init() {
     const input = document.getElementById('chat-message');
     const text = input.value.trim();
 
-    if (!text || !state.user) {
+    if (!text) {
       return;
     }
 
@@ -128,126 +117,125 @@ function init() {
       state.chat = state.chat.slice(-80);
     }
 
-    persistChat();
+    safeSet(storageKeys.chat, JSON.stringify(state.chat));
     input.value = '';
     renderChat();
   });
-}
 
-function handleLogin(event) {
-  event.preventDefault();
+  function renderCalendar() {
+    const base = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
+    const firstDay = (base.getDay() + 6) % 7;
+    const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
 
-  const username = document.getElementById('username').value.trim().toLowerCase();
-  const password = document.getElementById('password').value.trim();
-
-  if (!username || !password) {
-    loginError.textContent = 'Ingresa usuario y clave para continuar.';
-    return;
-  }
-
-  const validPasswords = users[username] || [];
-  const fallbackUser = validPasswords.includes(password) ? username : username || 'invitado';
-
-  loginSuccess(fallbackUser);
-  loginError.textContent = '';
-  loginForm.reset();
-}
-
-function loginSuccess(username) {
-  state.user = username;
-  if (users[username]) {
-    safeSet(storageKeys.user, username);
-  }
-
-  sessionUser.textContent = `Conectado como: ${username}`;
-  setView(true);
-
-  renderCalendar();
-  renderDayEvents();
-  renderChat();
-}
-
-function logout() {
-  state.user = null;
-  safeRemove(storageKeys.user);
-  sessionUser.textContent = '';
-  loginError.textContent = '';
-  setView(false);
-}
-
-function setView(showApp) {
-  loginView.hidden = showApp;
-  appView.hidden = !showApp;
-  loginView.classList.toggle('hidden', showApp);
-  appView.classList.toggle('hidden', !showApp);
-}
-
-function renderCalendar() {
-  const base = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-  const firstDay = (base.getDay() + 6) % 7;
-  const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
-
-  monthTitle.textContent = base.toLocaleDateString('es-ES', {
-    month: 'long',
-    year: 'numeric'
-  });
-
-  calendarGrid.innerHTML = '';
-
-  for (let i = 0; i < firstDay; i++) {
-    const spacer = document.createElement('div');
-    calendarGrid.appendChild(spacer);
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(base.getFullYear(), base.getMonth(), day);
-    const dateKey = formatDate(date);
-    const dayBtn = document.createElement('button');
-    dayBtn.type = 'button';
-    dayBtn.innerHTML = `<div class="day-number">${day}</div>`;
-
-    const events = state.events[dateKey] || [];
-    if (events.length) {
-      const marker = document.createElement('div');
-      marker.className = 'day-event';
-      marker.textContent = `${events.length} evento(s)`;
-      dayBtn.appendChild(marker);
-    }
-
-    if (dateKey === state.selectedDate) {
-      dayBtn.classList.add('selected');
-    }
-
-    if (dateKey === formatDate(new Date())) {
-      dayBtn.classList.add('today');
-    }
-
-    dayBtn.addEventListener('click', () => {
-      state.selectedDate = dateKey;
-      renderCalendar();
-      renderDayEvents();
+    monthTitle.textContent = base.toLocaleDateString('es-ES', {
+      month: 'long',
+      year: 'numeric'
     });
 
-    calendarGrid.appendChild(dayBtn);
+    calendarGrid.innerHTML = '';
+
+    for (let i = 0; i < firstDay; i++) {
+      const spacer = document.createElement('div');
+      calendarGrid.appendChild(spacer);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(base.getFullYear(), base.getMonth(), day);
+      const dateKey = formatDate(date);
+      const dayBtn = document.createElement('button');
+      dayBtn.type = 'button';
+      dayBtn.innerHTML = `<div class="day-number">${day}</div>`;
+
+      const events = state.events[dateKey] || [];
+      if (events.length) {
+        const marker = document.createElement('div');
+        marker.className = 'day-event';
+        marker.textContent = `${events.length} evento(s)`;
+        dayBtn.appendChild(marker);
+      }
+
+      if (dateKey === state.selectedDate) {
+        dayBtn.classList.add('selected');
+      }
+
+      if (dateKey === formatDate(new Date())) {
+        dayBtn.classList.add('today');
+      }
+
+      dayBtn.addEventListener('click', () => {
+        state.selectedDate = dateKey;
+        renderCalendar();
+        renderDayEvents();
+      });
+
+      calendarGrid.appendChild(dayBtn);
+    }
+  }
+
+  function renderDayEvents() {
+    const events = state.events[state.selectedDate] || [];
+    eventsList.innerHTML = '';
+
+    if (!events.length) {
+      const empty = document.createElement('li');
+      empty.textContent = `No hay eventos para ${formatHumanDate(state.selectedDate)}.`;
+      eventsList.appendChild(empty);
+      return;
+    }
+
+    events.forEach((eventTitle) => {
+      const item = document.createElement('li');
+      item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
+      eventsList.appendChild(item);
+    });
+  }
+
+  function renderChat() {
+    chatList.innerHTML = '';
+
+    if (!state.chat.length) {
+      const empty = document.createElement('li');
+      empty.textContent = 'Aún no hay mensajes en el chat grupal.';
+      chatList.appendChild(empty);
+      return;
+    }
+
+    state.chat.forEach((message) => {
+      const item = document.createElement('li');
+      item.innerHTML = `<strong>${message.user}:</strong> ${message.text}<div class="chat-meta">${formatTimestamp(message.createdAt)}</div>`;
+      chatList.appendChild(item);
+    });
   }
 }
 
-function renderDayEvents() {
-  const events = state.events[state.selectedDate] || [];
-  eventsList.innerHTML = '';
-
-  if (!events.length) {
-    const empty = document.createElement('li');
-    empty.textContent = `No hay eventos para ${formatHumanDate(state.selectedDate)}.`;
-    eventsList.appendChild(empty);
-    return;
+function loadEvents() {
+  const raw = safeGet(storageKeys.events);
+  if (!raw) {
+    return {
+      '2026-04-20': ['Kickoff semanal del equipo'],
+      '2026-04-23': ['Cierre de pendientes del mes']
+    };
   }
 
-  events.forEach((eventTitle) => {
-    const item = document.createElement('li');
-    item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
-    eventsList.appendChild(item);
-  });
+  const parsed = safeJsonParse(raw, null);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return {
+      '2026-04-20': ['Kickoff semanal del equipo'],
+      '2026-04-23': ['Cierre de pendientes del mes']
+    };
+  }
+
+  return parsed;
+}
+
+function loadChat() {
+  const raw = safeGet(storageKeys.chat);
+  if (!raw) {
+    return [];
+  }
+
+  const parsed = safeJsonParse(raw, []);
+  return Array.isArray(parsed) ? parsed : [];
 }
 
 function renderChat() {
@@ -339,5 +327,13 @@ function safeRemove(key) {
     localStorage.removeItem(key);
   } catch {
     delete memoryStore[key];
+  }
+}
+
+function safeJsonParse(rawValue, fallbackValue) {
+  try {
+    return JSON.parse(rawValue);
+  } catch {
+    return fallbackValue;
   }
 }

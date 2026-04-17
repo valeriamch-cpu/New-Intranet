@@ -140,6 +140,11 @@ textarea {
   color: var(--text);
 }
 
+.btn.block {
+  display: block;
+  text-align: center;
+}
+
 .error-message {
   min-height: 1.2rem;
   margin: 0;

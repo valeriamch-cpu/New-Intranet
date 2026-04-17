@@ -16,6 +16,10 @@ python3 -m http.server 8080
 
 Luego abrir: `http://localhost:8080`
 
+Flujo de páginas:
+- `index.html` = acceso.
+- `dashboard.html` = calendario + pizarra + chat.
+
 ## Publicación en GitHub Pages
 
 URL esperada del proyecto:

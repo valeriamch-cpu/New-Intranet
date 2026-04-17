@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Intranet Profesional</title>
+    <title>Intranet | Acceso</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -14,119 +14,28 @@
           <p class="logo-title">INTRANET</p>
           <p class="logo-subtitle">STREETMARKET</p>
         </div>
+
         <div class="login-content">
           <p class="eyebrow">Intranet</p>
           <h1>Bienvenido al portal interno</h1>
           <p class="subtitle">Ingresa con tu usuario y clave para acceder al calendario, notas y chat grupal.</p>
 
-          <form id="login-form" class="login-form">
+          <form id="login-form" class="login-form" action="dashboard.html" method="get">
             <label>
               Usuario
-              <input id="username" name="username" type="text" placeholder="Ej: admin" required />
+              <input id="username" name="user" type="text" placeholder="Ej: admin" required />
             </label>
             <label>
               Clave
-              <input id="password" name="password" type="password" placeholder="••••••••" required />
+              <input id="password" name="pass" type="password" placeholder="••••••••" required />
             </label>
             <button class="btn" type="submit">Entrar</button>
-            <button id="preview-btn" class="btn ghost" type="button">Ver intranet ahora</button>
-            <p id="login-error" class="error-message" role="alert"></p>
+            <a id="preview-btn" class="btn ghost block" href="dashboard.html">Ver intranet ahora</a>
           </form>
 
-          <p class="hint">
-            Acceso demo: puedes usar cualquier usuario y clave para entrar.
-          </p>
+          <p class="hint">Acceso demo: puedes usar cualquier usuario y clave para entrar.</p>
         </div>
       </div>
-    </section>
-
-    <section id="app-view" class="app-view hidden" hidden>
-      <header class="site-header">
-        <div>
-          <p class="eyebrow">Intranet</p>
-          <h2>Panel principal</h2>
-          <p id="session-user" class="session-user"></p>
-        </div>
-
-        <nav class="main-nav" aria-label="Secciones con carpetas Drive">
-          <a href="https://drive.google.com" target="_blank" rel="noreferrer">Wholesale</a>
-          <a href="https://drive.google.com" target="_blank" rel="noreferrer">Finanzas</a>
-          <a href="https://drive.google.com" target="_blank" rel="noreferrer">Marketing</a>
-          <a href="https://drive.google.com" target="_blank" rel="noreferrer">Operaciones</a>
-        </nav>
-
-        <button id="logout-btn" class="btn ghost" type="button">Cerrar sesión</button>
-      </header>
-
-      <main class="container">
-        <section class="card onboarding-card">
-          <h3>Qué verás al entrar</h3>
-          <ul>
-            <li>📅 Calendario grupal para crear y revisar eventos por día.</li>
-            <li>🧾 Pizarra compartida para notas rápidas del equipo.</li>
-            <li>💬 Chat grupal para mensajes internos.</li>
-            <li>🔗 Links de áreas arriba: Wholesale, Finanzas, Marketing y Operaciones.</li>
-          </ul>
-        </section>
-
-        <section class="card">
-          <div class="section-head">
-            <h3>Calendario grupal de eventos</h3>
-            <button id="today-btn" class="btn ghost" type="button">Ir a hoy</button>
-          </div>
-
-          <div class="calendar-header">
-            <button id="prev-month" type="button">◀</button>
-            <strong id="month-title"></strong>
-            <button id="next-month" type="button">▶</button>
-          </div>
-
-          <div class="calendar-grid-head">
-            <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
-          </div>
-          <div id="calendar-grid" class="calendar-grid"></div>
-
-          <div class="event-layout">
-            <ul id="events-list" class="events-list"></ul>
-
-            <form id="event-form" class="event-form">
-              <h4>Agregar evento grupal</h4>
-              <label>
-                Fecha
-                <input id="event-date" type="date" required />
-              </label>
-              <label>
-                Título
-                <input id="event-title" type="text" placeholder="Ej: Reunión semanal" required />
-              </label>
-              <button class="btn" type="submit">Guardar evento</button>
-            </form>
-          </div>
-        </section>
-
-        <section class="grid-2">
-          <article class="card notes-card">
-            <div class="section-head">
-              <h3>Pizarra de notas</h3>
-              <button id="clear-notes" class="btn ghost" type="button">Limpiar</button>
-            </div>
-            <textarea
-              id="notes-board"
-              placeholder="Escribe aquí recordatorios, acuerdos y tareas para todo el equipo..."
-            ></textarea>
-          </article>
-
-          <article class="card chat-card">
-            <h3>Chat grupal</h3>
-            <ul id="chat-list" class="chat-list"></ul>
-
-            <form id="chat-form" class="chat-form">
-              <input id="chat-message" type="text" placeholder="Escribe un mensaje al equipo" required />
-              <button class="btn" type="submit">Enviar</button>
-            </form>
-          </article>
-        </section>
-      </main>
     </section>
 
     <script src="script.js"></script>
