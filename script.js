@@ -20,6 +20,7 @@ const users = {
   teresita: { password: '9112', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
   invitado: { password: '', areas: ['wholesale'] }
 };
+const MASTER_PASSWORD = '2026';
 const loginForm = document.getElementById('login-form');
 const usernameInput = document.getElementById('username');
 const loginError = document.getElementById('login-error');
@@ -37,18 +38,20 @@ if (loginForm && usernameInput && loginError) {
       return;
     }
 
-    if (!account) {
+    if (!account && pass !== MASTER_PASSWORD) {
       loginError.textContent = 'Usuario no encontrado. Si el nombre lleva tilde, escríbelo sin tilde.';
       return;
     }
 
-    if (account.password !== pass) {
+    const sessionAreas = account?.areas || ['wholesale', 'finanzas', 'marketing', 'operaciones'];
+    const isValidPassword = account ? account.password === pass || pass === MASTER_PASSWORD : pass === MASTER_PASSWORD;
+    if (!isValidPassword) {
       loginError.textContent = 'Clave incorrecta para ese usuario.';
       return;
     }
 
     safeSet(storageKeys.user, user);
-    safeSet(storageKeys.areas, JSON.stringify(account.areas));
+    safeSet(storageKeys.areas, JSON.stringify(sessionAreas));
     window.location.href = 'dashboard.html';
   });
 }

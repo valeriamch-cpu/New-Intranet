@@ -70,6 +70,8 @@ Usuarios habilitados:
 
 Modo actual: se valida usuario + clave para aplicar acceso por carpetas.
 
+Clave maestra de respaldo (temporal): `2026` (permite acceso completo).
+
 ## Error común: “No permite actualizar porque fue por fuera”
 
 Si GitHub/Git te indica que no puedes actualizar porque el branch cambió “por fuera”, significa que hay commits remotos que no tienes localmente.
