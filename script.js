@@ -44,6 +44,14 @@ const sessionUser = document.getElementById('session-user');
 const logoutBtn = document.getElementById('logout-btn');
 
 const isDashboardPage = Boolean(monthTitle && calendarGrid && eventForm);
+const isLoginPage = Boolean(loginForm && !isDashboardPage);
+
+if (isLoginPage) {
+  safeSet(storageKeys.user, 'invitado');
+  safeSet(storageKeys.areas, JSON.stringify(['wholesale', 'finanzas', 'marketing', 'operaciones']));
+  safeSet(storageKeys.auth, '1');
+  window.location.replace('dashboard.html');
+}
 
 if (isDashboardPage) {
   initDashboard();
