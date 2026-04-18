@@ -3,7 +3,8 @@ const storageKeys = {
   notes: 'intranet-notes-board',
   chat: 'intranet-group-chat',
   user: 'intranet-user',
-  areas: 'intranet-areas'
+  areas: 'intranet-areas',
+  auth: 'intranet-auth'
 };
 
 const memoryStore = {};
@@ -48,6 +49,7 @@ if (loginForm && usernameInput && loginError) {
 
     safeSet(storageKeys.user, user);
     safeSet(storageKeys.areas, JSON.stringify(sessionAreas));
+    safeSet(storageKeys.auth, '1');
     window.location.href = 'dashboard.html';
   });
 }
@@ -66,13 +68,18 @@ const logoutBtn = document.getElementById('logout-btn');
 const isDashboardPage = Boolean(monthTitle && calendarGrid && eventForm);
 
 if (isDashboardPage) {
-  initDashboard();
+  if (!hasValidSession()) {
+    window.location.href = 'index.html';
+  } else {
+    initDashboard();
+  }
 }
 
 if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
     safeRemove(storageKeys.user);
     safeRemove(storageKeys.areas);
+    safeRemove(storageKeys.auth);
   });
 }
 
@@ -183,7 +190,6 @@ function initDashboard() {
       const spacer = document.createElement('div');
       calendarGrid.appendChild(spacer);
     }
-  }
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(base.getFullYear(), base.getMonth(), day);
@@ -279,6 +285,19 @@ function loadAreas() {
   return Array.isArray(parsed) ? parsed : ['wholesale'];
 }
 
+function hasValidSession() {
+  const user = safeGet(storageKeys.user);
+  const auth = safeGet(storageKeys.auth);
+  if (!user || auth !== '1') {
+    return false;
+  }
+}
+
+  const normalizedUser = normalizeUser(user);
+  const account = users[normalizedUser];
+  return Boolean(account);
+}
+
 function loadEvents() {
   const raw = safeGet(storageKeys.events);
   if (!raw) {
@@ -364,9 +383,13 @@ function safeJsonParse(rawValue, fallbackValue) {
 }
 
 function normalizeUser(value) {
-  return value
+  const base = String(value || '')
     .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+    .toLowerCase();
+
+  if (typeof base.normalize !== 'function') {
+    return base;
+  }
+
+  return base.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }

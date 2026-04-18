@@ -59,6 +59,8 @@ Usuarios configurados:
 - `valeria` / `1234` → acceso total (Wholesale, Finanzas, Marketing, Operaciones).
 - `veronica` / `4567` → acceso solo Operaciones.
 - `admin` / `2026` → acceso técnico total.
+ 
+Acceso cerrado: `dashboard.html` redirige a `index.html` si no existe sesión válida.
 
 ## Error común: “No permite actualizar porque fue por fuera”
 
