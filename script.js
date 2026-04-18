@@ -20,32 +20,10 @@ const loginError = document.getElementById('login-error');
 if (loginForm && usernameInput && loginError) {
   loginForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const user = normalizeUser(usernameInput.value);
-    const passwordInput = document.getElementById('password');
-    const pass = passwordInput ? passwordInput.value.trim() : '';
+    const rawUser = usernameInput.value.trim();
+    const user = normalizeUser(rawUser) || 'invitado';
     const account = users[user];
-
-    if (!pass) {
-      loginError.textContent = 'Debes ingresar una clave.';
-      return;
-    }
-
-    if (!user) {
-      loginError.textContent = 'Debes ingresar un usuario.';
-      return;
-    }
-
-    if (!account) {
-      loginError.textContent = 'Usuario no encontrado. Usa: valeria, veronica o admin.';
-      return;
-    }
-
-    const sessionAreas = account.areas;
-    const isValidPassword = account.password === pass;
-    if (!isValidPassword) {
-      loginError.textContent = 'Clave incorrecta. Prueba admin / 2026 para verificar acceso.';
-      return;
-    }
+    const sessionAreas = account ? account.areas : ['wholesale', 'finanzas', 'marketing', 'operaciones'];
 
     safeSet(storageKeys.user, user);
     safeSet(storageKeys.areas, JSON.stringify(sessionAreas));
@@ -68,11 +46,7 @@ const logoutBtn = document.getElementById('logout-btn');
 const isDashboardPage = Boolean(monthTitle && calendarGrid && eventForm);
 
 if (isDashboardPage) {
-  if (!hasValidSession()) {
-    window.location.href = 'index.html';
-  } else {
-    initDashboard();
-  }
+  initDashboard();
 }
 
 if (logoutBtn) {
@@ -190,6 +164,7 @@ function initDashboard() {
       const spacer = document.createElement('div');
       calendarGrid.appendChild(spacer);
     }
+  }
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(base.getFullYear(), base.getMonth(), day);
@@ -283,19 +258,6 @@ function loadAreas() {
   }
   const parsed = safeJsonParse(raw, ['wholesale']);
   return Array.isArray(parsed) ? parsed : ['wholesale'];
-}
-
-function hasValidSession() {
-  const user = safeGet(storageKeys.user);
-  const auth = safeGet(storageKeys.auth);
-  if (!user || auth !== '1') {
-    return false;
-  }
-}
-
-  const normalizedUser = normalizeUser(user);
-  const account = users[normalizedUser];
-  return Boolean(account);
 }
 
 function loadEvents() {

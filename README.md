@@ -60,7 +60,7 @@ Usuarios configurados:
 - `veronica` / `4567` → acceso solo Operaciones.
 - `admin` / `2026` → acceso técnico total.
  
-Acceso cerrado: `dashboard.html` redirige a `index.html` si no existe sesión válida.
+Modo temporal actual: acceso directo sin clave.
 
 ## Error común: “No permite actualizar porque fue por fuera”
 
