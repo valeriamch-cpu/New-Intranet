@@ -192,6 +192,7 @@ function initDashboard() {
       const spacer = document.createElement('div');
       calendarGrid.appendChild(spacer);
     }
+  }
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(base.getFullYear(), base.getMonth(), day);
