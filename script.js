@@ -38,12 +38,17 @@ if (loginForm && usernameInput && loginError) {
       return;
     }
 
+    if (!user) {
+      loginError.textContent = 'Debes ingresar un usuario.';
+      return;
+    }
+
     if (!account && pass !== MASTER_PASSWORD) {
       loginError.textContent = 'Usuario no encontrado. Si el nombre lleva tilde, escríbelo sin tilde.';
       return;
     }
 
-    const sessionAreas = account?.areas || ['wholesale', 'finanzas', 'marketing', 'operaciones'];
+    const sessionAreas = account ? account.areas : ['wholesale', 'finanzas', 'marketing', 'operaciones'];
     const isValidPassword = account ? account.password === pass || pass === MASTER_PASSWORD : pass === MASTER_PASSWORD;
     if (!isValidPassword) {
       loginError.textContent = 'Clave incorrecta para ese usuario.';
