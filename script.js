@@ -1,100 +1,98 @@
-const intranetContent = {
-  meetingSummary: [
-    'Reunión Salomon: Popi encargada de enviar propuesta.',
-    'Juan y Jano revisar plan para lanzamiento Carhartt.',
-    'Inventario Montduck listo en Lo Echevers.',
-    'Black Friday Marais: carga full con RDMTPN, Cachagua y Burritos.',
-    'Margarita: revisar arte y gráficas para Black Marais.',
-    'Hey Dude Marais: instalación mañana en la noche.',
-    'Hey Dude en The Market: cerrar gráficas y neones ASAP.',
-    'Poleras: continuar producción tras mantención de Microgeo.',
-    'Agendar ruteros Paris y Falabella con prioridad fin de año.'
-  ],
-  pendingTopics: [
-    'Confirmar piezas gráficas de campaña semanal.',
-    'Actualizar status de quiebres de stock por tienda.',
-    'Publicar minutas de comité de seguimiento.'
-  ],
-  importDates: ['Viernes 28 - Operación full day.', 'Martes 2 - Cierre de órdenes mayoristas.', 'Jueves 11 - Ventana de recepción en bodega.']
+const storageKeys = {
+  events: 'intranet-group-events',
+  notes: 'intranet-notes-board',
+  chat: 'intranet-group-chat',
+  user: 'intranet-user',
+  areas: 'intranet-areas'
 };
 
-const teams = {
-  general: {
-    name: 'Calendario principal',
-    subtitle: 'Eventos importantes de toda la empresa',
-    events: {
-      '2026-04-20': ['Townhall mensual'],
-      '2026-04-23': ['Cierre de reporte trimestral'],
-      '2026-05-03': ['Lanzamiento de campaña Q2']
-    }
-  },
-  equipos: {
-    name: 'Equipo de Operaciones',
-    subtitle: 'Seguimiento operativo y coordinación interna',
-    events: {
-      '2026-04-18': ['Revisión de SLAs'],
-      '2026-04-28': ['Capacitación de procesos']
-    }
-  },
-  finanzas: {
-    name: 'Finanzas',
-    subtitle: 'Pagos, presupuestos y cierres contables',
-    events: {
-      '2026-04-25': ['Aprobación de presupuesto'],
-      '2026-05-01': ['Cierre contable mensual']
-    }
-  },
-  wholesale: {
-    name: 'Wholesale',
-    subtitle: 'Gestión de cuentas mayoristas y pipeline',
-    events: {
-      '2026-04-21': ['Revisión de cuentas clave'],
-      '2026-05-06': ['Demo nuevo catálogo']
-    }
-  },
-  marketing: {
-    name: 'Marketing',
-    subtitle: 'Campañas, contenido y adquisición',
-    events: {
-      '2026-04-19': ['Plan de contenidos'],
-      '2026-04-29': ['Presentación resultados de campaña']
-    }
-  },
-  gestion: {
-    name: 'Gestión',
-    subtitle: 'Dirección, decisiones y seguimiento estratégico',
-    events: {
-      '2026-04-22': ['Comité ejecutivo'],
-      '2026-05-04': ['KPIs de negocio']
-    }
-  }
+const memoryStore = {};
+const users = {
+  valeria: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  veronica: { password: '4567', areas: ['operaciones'] },
+  admin: { password: '2026', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] }
 };
+const loginForm = document.getElementById('login-form');
+const usernameInput = document.getElementById('username');
+const loginError = document.getElementById('login-error');
 
-const state = {
-  teamKey: 'general',
-  currentDate: new Date(),
-  selectedDate: formatDate(new Date())
-};
+if (loginForm && usernameInput && loginError) {
+  loginForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const user = normalizeUser(usernameInput.value);
+    const passwordInput = document.getElementById('password');
+    const pass = passwordInput ? passwordInput.value.trim() : '';
+    const account = users[user];
 
-const meetingPoints = document.getElementById('meeting-points');
-const pendingList = document.getElementById('pending-list');
-const importsList = document.getElementById('imports-list');
+    if (!pass) {
+      loginError.textContent = 'Debes ingresar una clave.';
+      return;
+    }
 
-const teamNav = document.getElementById('team-nav');
+    if (!user) {
+      loginError.textContent = 'Debes ingresar un usuario.';
+      return;
+    }
+
+    if (!account) {
+      loginError.textContent = 'Usuario no encontrado. Usa: valeria, veronica o admin.';
+      return;
+    }
+
+    const sessionAreas = account.areas;
+    const isValidPassword = account.password === pass;
+    if (!isValidPassword) {
+      loginError.textContent = 'Clave incorrecta. Prueba admin / 2026 para verificar acceso.';
+      return;
+    }
+
+    safeSet(storageKeys.user, user);
+    safeSet(storageKeys.areas, JSON.stringify(sessionAreas));
+    window.location.href = 'dashboard.html';
+  });
+}
+
 const monthTitle = document.getElementById('month-title');
 const calendarGrid = document.getElementById('calendar-grid');
-const currentTeamName = document.getElementById('current-team-name');
-const calendarSubtitle = document.getElementById('calendar-subtitle');
 const eventsList = document.getElementById('events-list');
 const eventForm = document.getElementById('event-form');
+const notesBoard = document.getElementById('notes-board');
+const clearNotesBtn = document.getElementById('clear-notes');
+const chatList = document.getElementById('chat-list');
+const chatForm = document.getElementById('chat-form');
+const sessionUser = document.getElementById('session-user');
+const logoutBtn = document.getElementById('logout-btn');
 
-init();
+const isDashboardPage = Boolean(monthTitle && calendarGrid && eventForm);
 
-function init() {
-  renderInternalInfo();
-  renderTeamButtons();
+if (isDashboardPage) {
+  initDashboard();
+}
+
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    safeRemove(storageKeys.user);
+    safeRemove(storageKeys.areas);
+  });
+}
+
+function initDashboard() {
+  const allowedAreas = loadAreas();
+  const state = {
+    currentDate: new Date(),
+    selectedDate: formatDate(new Date()),
+    user: safeGet(storageKeys.user) || 'invitado',
+    events: loadEvents(),
+    chat: loadChat()
+  };
+
+  sessionUser.textContent = `Conectado como: ${state.user}`;
+  applyAreaPermissions(allowedAreas);
+  notesBoard.value = safeGet(storageKeys.notes) || '';
+
   renderCalendar();
   renderDayEvents();
+  renderChat();
 
   document.getElementById('prev-month').addEventListener('click', () => {
     state.currentDate.setMonth(state.currentDate.getMonth() - 1);
@@ -123,9 +121,9 @@ function init() {
       return;
     }
 
-    const team = teams[state.teamKey];
-    team.events[date] = team.events[date] || [];
-    team.events[date].push(title);
+    state.events[date] = state.events[date] || [];
+    state.events[date].push(title);
+    safeSet(storageKeys.events, JSON.stringify(state.events));
 
     state.selectedDate = date;
     state.currentDate = new Date(`${date}T00:00:00`);
@@ -134,118 +132,180 @@ function init() {
     renderCalendar();
     renderDayEvents();
   });
-}
 
-function renderInternalInfo() {
-  intranetContent.meetingSummary.forEach((point) => {
-    const item = document.createElement('li');
-    item.textContent = point;
-    meetingPoints.appendChild(item);
+  notesBoard.addEventListener('input', () => {
+    safeSet(storageKeys.notes, notesBoard.value);
   });
 
-  intranetContent.pendingTopics.forEach((topic) => {
-    const item = document.createElement('li');
-    item.textContent = topic;
-    pendingList.appendChild(item);
+  clearNotesBtn.addEventListener('click', () => {
+    notesBoard.value = '';
+    safeRemove(storageKeys.notes);
   });
 
-  intranetContent.importDates.forEach((date) => {
-    const item = document.createElement('li');
-    item.textContent = date;
-    importsList.appendChild(item);
-  });
-}
+  chatForm.addEventListener('submit', (event) => {
+    event.preventDefault();
 
-function renderTeamButtons() {
-  teamNav.innerHTML = '';
+    const input = document.getElementById('chat-message');
+    const text = input.value.trim();
 
-  Object.entries(teams).forEach(([key, team]) => {
-    const button = document.createElement('button');
-    button.textContent = team.name;
-    button.className = key === state.teamKey ? 'active' : '';
+    if (!text) {
+      return;
+    }
 
-    button.addEventListener('click', () => {
-      state.teamKey = key;
-      currentTeamName.textContent = team.name;
-      calendarSubtitle.textContent = team.subtitle;
-      renderTeamButtons();
-      renderCalendar();
-      renderDayEvents();
+    state.chat.push({
+      user: state.user,
+      text,
+      createdAt: new Date().toISOString()
     });
 
-    teamNav.appendChild(button);
-  });
-}
+    if (state.chat.length > 80) {
+      state.chat = state.chat.slice(-80);
+    }
 
-function renderCalendar() {
-  const base = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-  const firstDay = (base.getDay() + 6) % 7;
-  const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
-
-  monthTitle.textContent = base.toLocaleDateString('es-ES', {
-    month: 'long',
-    year: 'numeric'
+    safeSet(storageKeys.chat, JSON.stringify(state.chat));
+    input.value = '';
+    renderChat();
   });
 
-  calendarGrid.innerHTML = '';
+  function renderCalendar() {
+    const base = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
+    const firstDay = (base.getDay() + 6) % 7;
+    const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
 
-  for (let i = 0; i < firstDay; i++) {
-    const spacer = document.createElement('div');
-    calendarGrid.appendChild(spacer);
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(base.getFullYear(), base.getMonth(), day);
-    const dateKey = formatDate(date);
-    const dayBtn = document.createElement('button');
-    dayBtn.type = 'button';
-    dayBtn.innerHTML = `<div class="day-number">${day}</div>`;
-
-    const events = teams[state.teamKey].events[dateKey] || [];
-    if (events.length) {
-      const marker = document.createElement('div');
-      marker.className = 'day-event';
-      marker.textContent = `${events.length} evento(s)`;
-      dayBtn.appendChild(marker);
-    }
-
-    if (dateKey === state.selectedDate) {
-      dayBtn.classList.add('selected');
-    }
-
-    if (dateKey === formatDate(new Date())) {
-      dayBtn.classList.add('today');
-    }
-
-    dayBtn.addEventListener('click', () => {
-      state.selectedDate = dateKey;
-      renderCalendar();
-      renderDayEvents();
+    monthTitle.textContent = base.toLocaleDateString('es-ES', {
+      month: 'long',
+      year: 'numeric'
     });
 
-    calendarGrid.appendChild(dayBtn);
+    calendarGrid.innerHTML = '';
+
+    for (let i = 0; i < firstDay; i++) {
+      const spacer = document.createElement('div');
+      calendarGrid.appendChild(spacer);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(base.getFullYear(), base.getMonth(), day);
+      const dateKey = formatDate(date);
+      const dayBtn = document.createElement('button');
+      dayBtn.type = 'button';
+      dayBtn.innerHTML = `<div class="day-number">${day}</div>`;
+
+      const events = state.events[dateKey] || [];
+      if (events.length) {
+        const marker = document.createElement('div');
+        marker.className = 'day-event';
+        marker.textContent = `${events.length} evento(s)`;
+        dayBtn.appendChild(marker);
+      }
+
+      if (dateKey === state.selectedDate) {
+        dayBtn.classList.add('selected');
+      }
+
+      if (dateKey === formatDate(new Date())) {
+        dayBtn.classList.add('today');
+      }
+
+      dayBtn.addEventListener('click', () => {
+        state.selectedDate = dateKey;
+        renderCalendar();
+        renderDayEvents();
+      });
+
+      calendarGrid.appendChild(dayBtn);
+    }
   }
 
-  currentTeamName.textContent = teams[state.teamKey].name;
-  calendarSubtitle.textContent = teams[state.teamKey].subtitle;
+  function renderDayEvents() {
+    const events = state.events[state.selectedDate] || [];
+    eventsList.innerHTML = '';
+
+    if (!events.length) {
+      const empty = document.createElement('li');
+      empty.textContent = `No hay eventos para ${formatHumanDate(state.selectedDate)}.`;
+      eventsList.appendChild(empty);
+      return;
+    }
+
+    events.forEach((eventTitle) => {
+      const item = document.createElement('li');
+      item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
+      eventsList.appendChild(item);
+    });
+  }
+
+  function renderChat() {
+    chatList.innerHTML = '';
+
+    if (!state.chat.length) {
+      const empty = document.createElement('li');
+      empty.textContent = 'Aún no hay mensajes en el chat grupal.';
+      chatList.appendChild(empty);
+      return;
+    }
+
+    state.chat.forEach((message) => {
+      const item = document.createElement('li');
+      item.innerHTML = `<strong>${message.user}:</strong> ${message.text}<div class="chat-meta">${formatTimestamp(message.createdAt)}</div>`;
+      chatList.appendChild(item);
+    });
+  }
 }
 
-function renderDayEvents() {
-  const events = teams[state.teamKey].events[state.selectedDate] || [];
-  eventsList.innerHTML = '';
+function applyAreaPermissions(allowedAreas) {
+  const links = document.querySelectorAll('[data-area]');
+  links.forEach((link) => {
+    const area = link.dataset.area;
+    if (allowedAreas.includes(area)) {
+      return;
+    }
 
-  if (!events.length) {
-    const empty = document.createElement('li');
-    empty.textContent = `No hay eventos para ${formatHumanDate(state.selectedDate)}.`;
-    eventsList.appendChild(empty);
-    return;
+    link.classList.add('disabled');
+    link.removeAttribute('target');
+    link.setAttribute('aria-disabled', 'true');
+    link.setAttribute('title', 'Sin acceso para tu usuario');
+    link.href = '#';
+  });
+}
+
+function loadAreas() {
+  const raw = safeGet(storageKeys.areas);
+  if (!raw) {
+    return ['wholesale'];
+  }
+  const parsed = safeJsonParse(raw, ['wholesale']);
+  return Array.isArray(parsed) ? parsed : ['wholesale'];
+}
+
+function loadEvents() {
+  const raw = safeGet(storageKeys.events);
+  if (!raw) {
+    return {
+      '2026-04-20': ['Kickoff semanal del equipo'],
+      '2026-04-23': ['Cierre de pendientes del mes']
+    };
   }
 
-  events.forEach((eventTitle) => {
-    const item = document.createElement('li');
-    item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
-    eventsList.appendChild(item);
-  });
+  const parsed = safeJsonParse(raw, null);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return {
+      '2026-04-20': ['Kickoff semanal del equipo'],
+      '2026-04-23': ['Cierre de pendientes del mes']
+    };
+  }
+
+  return parsed;
+}
+
+function loadChat() {
+  const raw = safeGet(storageKeys.chat);
+  if (!raw) {
+    return [];
+  }
+
+  const parsed = safeJsonParse(raw, []);
+  return Array.isArray(parsed) ? parsed : [];
 }
 
 function formatDate(date) {
@@ -259,4 +319,53 @@ function formatHumanDate(dateString) {
     month: 'short',
     year: 'numeric'
   });
+}
+
+function formatTimestamp(isoDate) {
+  return new Date(isoDate).toLocaleString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function safeGet(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return memoryStore[key] || null;
+  }
+}
+
+function safeSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    memoryStore[key] = value;
+  }
+}
+
+function safeRemove(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    delete memoryStore[key];
+  }
+}
+
+function safeJsonParse(rawValue, fallbackValue) {
+  try {
+    return JSON.parse(rawValue);
+  } catch {
+    return fallbackValue;
+  }
+}
+
+function normalizeUser(value) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 }
