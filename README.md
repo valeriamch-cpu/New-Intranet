@@ -56,6 +56,7 @@ Operaciones: 1jkl...
 
 Usuarios habilitados:
 
+- `admin` / `2026` → acceso total (urgencia).
 - `valeria` / `1207` → Wholesale, Finanzas, Marketing, Operaciones.
 - `veronica` / `1234` → Operaciones.
 - `valentina` / `5678` → Marketing, Wholesale.
