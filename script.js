@@ -8,24 +8,13 @@ const storageKeys = {
 
 const memoryStore = {};
 const users = {
-  admin: { password: '2026', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  valeria: { password: '1207', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  veronica: { password: '1234', areas: ['operaciones'] },
-  valentina: { password: '5678', areas: ['marketing', 'wholesale'] },
-  sandra: { password: '9112', areas: ['finanzas'] },
-  carlos: { password: '1234', areas: ['wholesale', 'marketing'] },
-  luis: { password: '5678', areas: ['finanzas'] },
-  juan: { password: '9112', areas: ['marketing'] },
-  margarita: { password: '1234', areas: ['marketing'] },
-  sofia: { password: '5678', areas: ['finanzas', 'marketing'] },
-  teresita: { password: '9112', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  invitado: { password: '', areas: ['wholesale'] }
+  valeria: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
+  veronica: { password: '4567', areas: ['operaciones'] },
+  admin: { password: '2026', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] }
 };
-const MASTER_PASSWORD = '2026';
 const loginForm = document.getElementById('login-form');
 const usernameInput = document.getElementById('username');
 const loginError = document.getElementById('login-error');
-const emergencyAccessBtn = document.getElementById('emergency-access');
 
 if (loginForm && usernameInput && loginError) {
   loginForm.addEventListener('submit', (event) => {
@@ -45,13 +34,13 @@ if (loginForm && usernameInput && loginError) {
       return;
     }
 
-    if (!account && pass !== MASTER_PASSWORD) {
+    if (!account) {
       loginError.textContent = 'Usuario no encontrado. Si el nombre lleva tilde, escríbelo sin tilde.';
       return;
     }
 
-    const sessionAreas = account ? account.areas : ['wholesale', 'finanzas', 'marketing', 'operaciones'];
-    const isValidPassword = account ? account.password === pass || pass === MASTER_PASSWORD : pass === MASTER_PASSWORD;
+    const sessionAreas = account.areas;
+    const isValidPassword = account.password === pass;
     if (!isValidPassword) {
       loginError.textContent = 'Clave incorrecta para ese usuario.';
       return;
@@ -59,14 +48,6 @@ if (loginForm && usernameInput && loginError) {
 
     safeSet(storageKeys.user, user);
     safeSet(storageKeys.areas, JSON.stringify(sessionAreas));
-    window.location.href = 'dashboard.html';
-  });
-}
-
-if (emergencyAccessBtn) {
-  emergencyAccessBtn.addEventListener('click', () => {
-    safeSet(storageKeys.user, 'admin');
-    safeSet(storageKeys.areas, JSON.stringify(users.admin.areas));
     window.location.href = 'dashboard.html';
   });
 }
@@ -292,10 +273,10 @@ function applyAreaPermissions(allowedAreas) {
 function loadAreas() {
   const raw = safeGet(storageKeys.areas);
   if (!raw) {
-    return users.invitado.areas;
+    return ['wholesale'];
   }
-  const parsed = safeJsonParse(raw, users.invitado.areas);
-  return Array.isArray(parsed) ? parsed : users.invitado.areas;
+  const parsed = safeJsonParse(raw, ['wholesale']);
+  return Array.isArray(parsed) ? parsed : ['wholesale'];
 }
 
 function loadEvents() {

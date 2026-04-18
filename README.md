@@ -54,24 +54,11 @@ Operaciones: 1jkl...
 
 ## Acceso restringido por usuario (demo)
 
-Usuarios habilitados:
+Usuarios configurados (no exponer claves en documentación):
 
-- `admin` / `2026` → acceso total (urgencia).
-- `valeria` / `1207` → Wholesale, Finanzas, Marketing, Operaciones.
-- `veronica` / `1234` → Operaciones.
-- `valentina` / `5678` → Marketing, Wholesale.
-- `sandra` / `9112` → Finanzas.
-- `carlos` / `1234` → Wholesale, Marketing.
-- `luis` / `5678` → Finanzas.
-- `juan` / `9112` → Marketing.
-- `margarita` / `1234` → Marketing.
-- `sofia` / `5678` → Finanzas, Marketing.
-- `teresita` / `9112` → Wholesale, Finanzas, Marketing, Operaciones.
-- `invitado` → usuario técnico de respaldo (sin acceso desde UI).
-
-Modo actual: se valida usuario + clave para aplicar acceso por carpetas.
-
-Clave maestra de respaldo (temporal): `2026` (permite acceso completo).
+- `valeria` → acceso total (Wholesale, Finanzas, Marketing, Operaciones).
+- `veronica` → acceso solo Operaciones.
+- `admin` → acceso técnico total.
 
 ## Error común: “No permite actualizar porque fue por fuera”
 
