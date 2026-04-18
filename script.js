@@ -291,6 +291,7 @@ function hasValidSession() {
   if (!user || auth !== '1') {
     return false;
   }
+}
 
   const normalizedUser = normalizeUser(user);
   const account = users[normalizedUser];
