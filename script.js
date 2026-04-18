@@ -23,7 +23,6 @@ const users = {
 const loginForm = document.getElementById('login-form');
 const usernameInput = document.getElementById('username');
 const loginError = document.getElementById('login-error');
-const previewBtn = document.getElementById('preview-btn');
 
 if (loginForm && usernameInput && loginError) {
   loginForm.addEventListener('submit', (event) => {
@@ -32,6 +31,11 @@ if (loginForm && usernameInput && loginError) {
     const passwordInput = document.getElementById('password');
     const pass = passwordInput ? passwordInput.value.trim() : '';
     const account = users[user];
+
+    if (!pass) {
+      loginError.textContent = 'Debes ingresar una clave.';
+      return;
+    }
 
     if (!account) {
       loginError.textContent = 'Usuario no encontrado. Si el nombre lleva tilde, escríbelo sin tilde.';
@@ -46,13 +50,6 @@ if (loginForm && usernameInput && loginError) {
     safeSet(storageKeys.user, user);
     safeSet(storageKeys.areas, JSON.stringify(account.areas));
     window.location.href = 'dashboard.html';
-  });
-}
-
-if (previewBtn) {
-  previewBtn.addEventListener('click', () => {
-    safeSet(storageKeys.user, 'invitado');
-    safeSet(storageKeys.areas, JSON.stringify(users.invitado.areas));
   });
 }
 

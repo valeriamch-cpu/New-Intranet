@@ -7,6 +7,7 @@
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --ok: #10b981;
+  --logo-font: "Arial Black", "Impact", "Segoe UI", sans-serif;
 }
 
 * {
@@ -248,6 +249,49 @@ textarea {
   cursor: pointer;
 }
 
+.calendar-card {
+  background: #0b0b0b;
+  border-color: #1f1f1f;
+  color: #ffffff;
+}
+
+.calendar-card h3,
+.calendar-card h4,
+.calendar-card strong,
+.calendar-card .day-number {
+  font-family: var(--logo-font);
+  font-style: italic;
+  letter-spacing: 0.01em;
+  transform: skewX(-8deg);
+}
+
+.calendar-card .btn.ghost {
+  background: #111827;
+  border-color: #374151;
+  color: #e5e7eb;
+}
+
+.calendar-card .calendar-grid-head {
+  color: #9ca3af;
+}
+
+.calendar-card .calendar-header button,
+.calendar-card .calendar-grid button {
+  background: #111827;
+  color: #f9fafb;
+  border-color: #374151;
+}
+
+.calendar-card .calendar-grid button.selected {
+  border-color: #ffffff;
+  background: #1f2937;
+}
+
+.calendar-card .calendar-grid button.today .day-number {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
 .calendar-grid-head,
 .calendar-grid {
   display: grid;
@@ -309,6 +353,13 @@ textarea {
   border-radius: 8px;
   padding: 0.55rem;
   font-size: 0.9rem;
+}
+
+.calendar-card .events-list li,
+.calendar-card .event-form input {
+  background: #111827;
+  border-color: #374151;
+  color: #f9fafb;
 }
 
 .chat-meta {

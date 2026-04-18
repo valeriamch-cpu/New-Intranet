@@ -66,7 +66,7 @@ Usuarios habilitados:
 - `margarita` / `1234` → Marketing.
 - `sofia` / `5678` → Finanzas, Marketing.
 - `teresita` / `9112` → Wholesale, Finanzas, Marketing, Operaciones.
-- `invitado` (botón “Ver intranet ahora”) → solo Wholesale.
+- `invitado` → usuario técnico de respaldo (sin acceso desde UI).
 
 Modo actual: se valida usuario + clave para aplicar acceso por carpetas.
 
