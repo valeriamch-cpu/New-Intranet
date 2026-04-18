@@ -23,7 +23,12 @@
           <form id="login-form" class="login-form">
             <label>
               Usuario
-              <input id="username" name="user" type="text" placeholder="Ej: admin" required />
+              <input id="username" name="user" type="text" placeholder="Ej: admin" list="users-list" required />
+              <datalist id="users-list">
+                <option value="valeria"></option>
+                <option value="veronica"></option>
+                <option value="admin"></option>
+              </datalist>
             </label>
             <label>
               Clave
@@ -33,7 +38,7 @@
             <p id="login-error" class="error-message" role="alert"></p>
           </form>
 
-          <p class="hint">Acceso privado con usuario y clave.</p>
+          <p class="hint">Prueba rápida: <strong>admin / 2026</strong>. También: valeria/1234, veronica/4567.</p>
         </div>
       </div>
     </section>

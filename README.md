@@ -54,11 +54,11 @@ Operaciones: 1jkl...
 
 ## Acceso restringido por usuario (demo)
 
-Usuarios configurados (no exponer claves en documentación):
+Usuarios configurados:
 
-- `valeria` → acceso total (Wholesale, Finanzas, Marketing, Operaciones).
-- `veronica` → acceso solo Operaciones.
-- `admin` → acceso técnico total.
+- `valeria` / `1234` → acceso total (Wholesale, Finanzas, Marketing, Operaciones).
+- `veronica` / `4567` → acceso solo Operaciones.
+- `admin` / `2026` → acceso técnico total.
 
 ## Error común: “No permite actualizar porque fue por fuera”
 

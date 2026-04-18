@@ -35,14 +35,14 @@ if (loginForm && usernameInput && loginError) {
     }
 
     if (!account) {
-      loginError.textContent = 'Usuario no encontrado. Si el nombre lleva tilde, escríbelo sin tilde.';
+      loginError.textContent = 'Usuario no encontrado. Usa: valeria, veronica o admin.';
       return;
     }
 
     const sessionAreas = account.areas;
     const isValidPassword = account.password === pass;
     if (!isValidPassword) {
-      loginError.textContent = 'Clave incorrecta para ese usuario.';
+      loginError.textContent = 'Clave incorrecta. Prueba admin / 2026 para verificar acceso.';
       return;
     }
 
