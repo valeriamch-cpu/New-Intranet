@@ -272,6 +272,7 @@ function initDashboard() {
       eventsList.appendChild(empty);
       return;
     }
+  }
 
     events.forEach((eventTitle) => {
       const item = document.createElement('li');
