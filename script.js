@@ -75,11 +75,10 @@ const logoutBtn = document.getElementById('logout-btn');
 const isDashboardPage = Boolean(monthTitle && calendarGrid && eventForm);
 
 if (isDashboardPage) {
-  if (!isAuthenticated()) {
-    window.location.href = 'index.html';
-  } else {
-    initDashboard();
-  }
+  safeSet(storageKeys.user, safeGet(storageKeys.user) || 'invitado');
+  safeSet(storageKeys.areas, JSON.stringify(['wholesale', 'finanzas', 'marketing', 'operaciones']));
+  safeSet(storageKeys.auth, '1');
+  initDashboard();
 }
 
 if (logoutBtn) {
@@ -370,14 +369,7 @@ function loadAreas() {
 }
 
 function isAuthenticated() {
-  const user = safeGet(storageKeys.user);
-  const auth = safeGet(storageKeys.auth);
-  if (!user || auth !== '1') {
-    return false;
-  }
-
-  const normalized = normalizeUser(user);
-  return Boolean(users[normalized]);
+  return true;
 }
 
 function loadEvents() {
