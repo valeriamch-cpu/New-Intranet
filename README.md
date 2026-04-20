@@ -6,6 +6,7 @@ Prototipo de intranet web con:
 - Panel con calendario grupal.
 - Pizarra de notas compartida.
 - Chat grupal.
+- Lista de tareas con check y eliminación.
 - Persistencia en navegador con `localStorage`.
 
 ## Verlo en local

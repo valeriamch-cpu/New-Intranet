@@ -250,9 +250,9 @@ textarea {
 }
 
 .calendar-card {
-  background: #0b0b0b;
-  border-color: #1f1f1f;
-  color: #ffffff;
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
 }
 
 .calendar-card h3,
@@ -266,29 +266,29 @@ textarea {
 }
 
 .calendar-card .btn.ghost {
-  background: #111827;
-  border-color: #374151;
-  color: #e5e7eb;
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #111827;
 }
 
 .calendar-card .calendar-grid-head {
-  color: #9ca3af;
+  color: #4b5563;
 }
 
 .calendar-card .calendar-header button,
 .calendar-card .calendar-grid button {
-  background: #111827;
-  color: #f9fafb;
-  border-color: #374151;
+  background: #ffffff;
+  color: #111827;
+  border-color: #d1d5db;
 }
 
 .calendar-card .calendar-grid button.selected {
-  border-color: #ffffff;
-  background: #1f2937;
+  border-color: #6b7280;
+  background: #e5e7eb;
 }
 
 .calendar-card .calendar-grid button.today .day-number {
-  color: #ffffff;
+  color: #111827;
   text-decoration: underline;
 }
 
@@ -357,9 +357,9 @@ textarea {
 
 .calendar-card .events-list li,
 .calendar-card .event-form input {
-  background: #111827;
-  border-color: #374151;
-  color: #f9fafb;
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #111827;
 }
 
 .chat-meta {
@@ -374,10 +374,52 @@ textarea {
   gap: 0.7rem;
 }
 
-.grid-2 {
+.grid-2,
+.grid-3 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.task-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+}
+
+.tasks-list {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.tasks-list li {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.55rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tasks-list li.done label {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.tasks-list button {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
 }
 
 #notes-board {
@@ -388,7 +430,8 @@ textarea {
 @media (max-width: 980px) {
   .login-card,
   .event-layout,
-  .grid-2 {
+  .grid-2,
+  .grid-3 {
     grid-template-columns: 1fr;
   }
 

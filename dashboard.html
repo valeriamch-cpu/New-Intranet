@@ -59,7 +59,7 @@
             <h4>Agregar evento grupal</h4>
             <label>
               Fecha
-              <input id="event-date" type="date" required />
+              <input id="event-date" type="date" />
             </label>
             <label>
               Título
@@ -70,7 +70,7 @@
         </div>
       </section>
 
-      <section class="grid-2">
+      <section class="grid-3">
         <article class="card notes-card">
           <div class="section-head">
             <h3>Pizarra de notas</h3>
@@ -90,6 +90,20 @@
             <input id="chat-message" type="text" placeholder="Escribe un mensaje al equipo" required />
             <button class="btn" type="submit">Enviar</button>
           </form>
+        </article>
+
+        <article class="card tasks-card">
+          <div class="section-head">
+            <h3>Lista de tareas</h3>
+            <button id="clear-tasks" class="btn ghost" type="button">Limpiar</button>
+          </div>
+
+          <form id="task-form" class="task-form">
+            <input id="task-input" type="text" placeholder="Ej: Enviar propuesta a cliente" required />
+            <button class="btn" type="submit">Agregar</button>
+          </form>
+
+          <ul id="tasks-list" class="tasks-list"></ul>
         </article>
       </section>
     </main>

@@ -2,6 +2,7 @@ const storageKeys = {
   events: 'intranet-group-events',
   notes: 'intranet-notes-board',
   chat: 'intranet-group-chat',
+  tasks: 'intranet-tasks',
   user: 'intranet-user',
   areas: 'intranet-areas',
   auth: 'intranet-auth'
@@ -40,6 +41,9 @@ const notesBoard = document.getElementById('notes-board');
 const clearNotesBtn = document.getElementById('clear-notes');
 const chatList = document.getElementById('chat-list');
 const chatForm = document.getElementById('chat-form');
+const taskForm = document.getElementById('task-form');
+const tasksList = document.getElementById('tasks-list');
+const clearTasksBtn = document.getElementById('clear-tasks');
 const sessionUser = document.getElementById('session-user');
 const logoutBtn = document.getElementById('logout-btn');
 
@@ -72,7 +76,8 @@ function initDashboard() {
     selectedDate: formatDate(new Date()),
     user: safeGet(storageKeys.user) || 'invitado',
     events: loadEvents(),
-    chat: loadChat()
+    chat: loadChat(),
+    tasks: loadTasks()
   };
 
   sessionUser.textContent = `Conectado como: ${state.user}`;
@@ -82,6 +87,7 @@ function initDashboard() {
   renderCalendar();
   renderDayEvents();
   renderChat();
+  renderTasks();
 
   document.getElementById('prev-month').addEventListener('click', () => {
     state.currentDate.setMonth(state.currentDate.getMonth() - 1);
@@ -103,10 +109,10 @@ function initDashboard() {
 
   eventForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const date = document.getElementById('event-date').value;
+    const date = document.getElementById('event-date').value || state.selectedDate;
     const title = document.getElementById('event-title').value.trim();
 
-    if (!date || !title) {
+    if (!title) {
       return;
     }
 
@@ -156,6 +162,31 @@ function initDashboard() {
     renderChat();
   });
 
+  taskForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const input = document.getElementById('task-input');
+    const title = input.value.trim();
+    if (!title) {
+      return;
+    }
+
+    state.tasks.push({
+      id: Date.now().toString(),
+      title,
+      done: false
+    });
+
+    persistTasks(state.tasks);
+    input.value = '';
+    renderTasks();
+  });
+
+  clearTasksBtn.addEventListener('click', () => {
+    state.tasks = [];
+    persistTasks(state.tasks);
+    renderTasks();
+  });
+
   function renderCalendar() {
     const base = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
     const firstDay = (base.getDay() + 6) % 7;
@@ -172,7 +203,6 @@ function initDashboard() {
       const spacer = document.createElement('div');
       calendarGrid.appendChild(spacer);
     }
-  }
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(base.getFullYear(), base.getMonth(), day);
@@ -217,6 +247,7 @@ function initDashboard() {
       eventsList.appendChild(empty);
       return;
     }
+  }
 
     events.forEach((eventTitle) => {
       const item = document.createElement('li');
@@ -239,6 +270,53 @@ function initDashboard() {
       const item = document.createElement('li');
       item.innerHTML = `<strong>${message.user}:</strong> ${message.text}<div class="chat-meta">${formatTimestamp(message.createdAt)}</div>`;
       chatList.appendChild(item);
+    });
+  }
+
+  function renderTasks() {
+    tasksList.innerHTML = '';
+
+    if (!state.tasks.length) {
+      const empty = document.createElement('li');
+      empty.textContent = 'No hay tareas pendientes.';
+      tasksList.appendChild(empty);
+      return;
+    }
+
+    state.tasks.forEach((task) => {
+      const item = document.createElement('li');
+      item.className = task.done ? 'done' : '';
+      item.innerHTML = `
+        <label><input type=\"checkbox\" ${task.done ? 'checked' : ''} data-id=\"${task.id}\" /> ${task.title}</label>
+        <button type=\"button\" data-remove=\"${task.id}\">Eliminar</button>
+      `;
+      tasksList.appendChild(item);
+    });
+  }
+
+  function renderChat() {
+    chatList.innerHTML = '';
+
+    tasksList.querySelectorAll('input[type=\"checkbox\"]').forEach((checkbox) => {
+      checkbox.addEventListener('change', () => {
+        const id = checkbox.getAttribute('data-id');
+        const task = state.tasks.find((t) => t.id === id);
+        if (!task) {
+          return;
+        }
+        task.done = checkbox.checked;
+        persistTasks(state.tasks);
+        renderTasks();
+      });
+    });
+
+    tasksList.querySelectorAll('button[data-remove]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const id = button.getAttribute('data-remove');
+        state.tasks = state.tasks.filter((task) => task.id !== id);
+        persistTasks(state.tasks);
+        renderTasks();
+      });
     });
   }
 }
@@ -297,6 +375,19 @@ function loadChat() {
 
   const parsed = safeJsonParse(raw, []);
   return Array.isArray(parsed) ? parsed : [];
+}
+
+function loadTasks() {
+  const raw = safeGet(storageKeys.tasks);
+  if (!raw) {
+    return [];
+  }
+  const parsed = safeJsonParse(raw, []);
+  return Array.isArray(parsed) ? parsed : [];
+}
+
+function persistTasks(tasks) {
+  safeSet(storageKeys.tasks, JSON.stringify(tasks));
 }
 
 function formatDate(date) {
