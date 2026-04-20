@@ -247,6 +247,7 @@ function initDashboard() {
       eventsList.appendChild(empty);
       return;
     }
+  }
 
     events.forEach((eventTitle) => {
       const item = document.createElement('li');
@@ -291,6 +292,10 @@ function initDashboard() {
       `;
       tasksList.appendChild(item);
     });
+  }
+
+  function renderChat() {
+    chatList.innerHTML = '';
 
     tasksList.querySelectorAll('input[type=\"checkbox\"]').forEach((checkbox) => {
       checkbox.addEventListener('change', () => {
