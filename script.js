@@ -278,6 +278,14 @@ function initDashboard() {
       eventsList.appendChild(empty);
       return;
     }
+  }
+
+    events.forEach((eventTitle) => {
+      const item = document.createElement('li');
+      item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
+      eventsList.appendChild(item);
+    });
+  }
 
     events.forEach((eventTitle) => {
       const item = document.createElement('li');
