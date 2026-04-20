@@ -247,6 +247,17 @@ function initDashboard() {
       eventsList.appendChild(empty);
       return;
     }
+  }
+
+    events.forEach((eventTitle) => {
+      const item = document.createElement('li');
+      item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
+      eventsList.appendChild(item);
+    });
+  }
+
+  function renderChat() {
+    chatList.innerHTML = '';
 
     events.forEach((eventTitle) => {
       const item = document.createElement('li');
@@ -291,6 +302,7 @@ function initDashboard() {
       `;
       tasksList.appendChild(item);
     });
+  }
 
     tasksList.querySelectorAll('input[type=\"checkbox\"]').forEach((checkbox) => {
       checkbox.addEventListener('change', () => {
