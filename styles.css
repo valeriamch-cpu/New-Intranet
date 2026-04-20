@@ -428,7 +428,7 @@ textarea {
 
 .task-form {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr 120px auto;
   gap: 0.6rem;
 }
 
@@ -442,12 +442,14 @@ textarea {
 
 .tasks-list li {
   border: 1px solid var(--border);
+  border-left: 8px solid var(--task-color, #10b981);
   border-radius: 8px;
   padding: 0.55rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
+  background: #fff;
 }
 
 .tasks-list li.done label {

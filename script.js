@@ -188,6 +188,7 @@ function initDashboard() {
   taskForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const input = document.getElementById('task-input');
+    const colorInput = document.getElementById('task-color');
     const title = input.value.trim();
     if (!title) {
       return;
@@ -196,7 +197,8 @@ function initDashboard() {
     state.tasks.push({
       id: Date.now().toString(),
       title,
-      done: false
+      done: false,
+      color: colorInput ? colorInput.value : '#10b981'
     });
 
     persistTasks(state.tasks);
@@ -324,6 +326,7 @@ function initDashboard() {
     state.tasks.forEach((task) => {
       const item = document.createElement('li');
       item.className = task.done ? 'done' : '';
+      item.style.setProperty('--task-color', task.color || '#10b981');
       item.innerHTML = `
         <label><input type=\"checkbox\" ${task.done ? 'checked' : ''} data-id=\"${task.id}\" /> ${task.title}</label>
         <button type=\"button\" data-remove=\"${task.id}\">Eliminar</button>
