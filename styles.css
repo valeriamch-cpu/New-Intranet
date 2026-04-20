@@ -1,6 +1,6 @@
 :root {
-  --bg: #f4f6fb;
-  --card: #ffffff;
+  --bg: #e8edf5;
+  --card: #f8fafc;
   --text: #1f2937;
   --muted: #64748b;
   --border: #dbe3f2;
@@ -215,8 +215,8 @@ textarea {
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 1rem;
+  border-radius: 16px;
+  padding: 1rem 1rem 1.1rem;
 }
 
 .onboarding-card ul {
@@ -250,8 +250,8 @@ textarea {
 }
 
 .calendar-card {
-  background: #f3f4f6;
-  border-color: #d1d5db;
+  background: #e5e7eb;
+  border-color: #c5cfdd;
   color: #111827;
 }
 
@@ -267,7 +267,7 @@ textarea {
 
 .calendar-card .btn.ghost {
   background: #ffffff;
-  border-color: #d1d5db;
+  border-color: #c5cfdd;
   color: #111827;
 }
 
@@ -279,12 +279,12 @@ textarea {
 .calendar-card .calendar-grid button {
   background: #ffffff;
   color: #111827;
-  border-color: #d1d5db;
+  border-color: #c5cfdd;
 }
 
 .calendar-card .calendar-grid button.selected {
-  border-color: #6b7280;
-  background: #e5e7eb;
+  border-color: #4b5563;
+  background: #dbe2ea;
 }
 
 .calendar-card .calendar-grid button.today .day-number {
@@ -358,8 +358,13 @@ textarea {
 .calendar-card .events-list li,
 .calendar-card .event-form input {
   background: #ffffff;
-  border-color: #d1d5db;
+  border-color: #c5cfdd;
   color: #111827;
+}
+
+.calendar-card .event-form .btn {
+  background: #2563eb;
+  border-color: #2563eb;
 }
 
 .chat-meta {

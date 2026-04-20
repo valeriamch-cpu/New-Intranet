@@ -259,6 +259,16 @@ function initDashboard() {
   function renderChat() {
     chatList.innerHTML = '';
 
+    events.forEach((eventTitle) => {
+      const item = document.createElement('li');
+      item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
+      eventsList.appendChild(item);
+    });
+  }
+
+  function renderChat() {
+    chatList.innerHTML = '';
+
     if (!state.chat.length) {
       const empty = document.createElement('li');
       empty.textContent = 'Aún no hay mensajes en el chat grupal.';
@@ -293,9 +303,6 @@ function initDashboard() {
       tasksList.appendChild(item);
     });
   }
-
-  function renderChat() {
-    chatList.innerHTML = '';
 
     tasksList.querySelectorAll('input[type=\"checkbox\"]').forEach((checkbox) => {
       checkbox.addEventListener('change', () => {
