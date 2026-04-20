@@ -1,11 +1,11 @@
 :root {
-  --bg: #e8edf5;
-  --card: #f8fafc;
-  --text: #1f2937;
-  --muted: #64748b;
-  --border: #dbe3f2;
-  --accent: #2563eb;
-  --accent-soft: #eff6ff;
+  --bg: #ece7f7;
+  --card: #f9f7ff;
+  --text: #101239;
+  --muted: #50517a;
+  --border: #d8caf8;
+  --accent: #5b2ca5;
+  --accent-soft: #efe7ff;
   --ok: #10b981;
   --logo-font: "Arial Black", "Impact", "Segoe UI", sans-serif;
 }
@@ -34,13 +34,15 @@ body {
 }
 
 .login-card {
-  width: min(960px, 100%);
+  width: min(1080px, 100%);
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 18px;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
 }
 
 .hero-image {
@@ -51,33 +53,47 @@ body {
 
 .logo-hero {
   display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 0.2rem;
-  background: #e5e7eb;
-  padding: 1rem;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0 1rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem;
+}
+
+.logo-icon {
+  margin: 0;
+  grid-row: 1 / span 2;
+  width: 70px;
+  height: 70px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  background: linear-gradient(180deg, #ffb347, #f59e0b);
 }
 
 .logo-title {
   margin: 0;
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  line-height: 0.9;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  font-style: italic;
-  text-transform: uppercase;
-  transform: skewX(-10deg);
+  font-size: clamp(1.5rem, 4.2vw, 2.5rem);
+  line-height: 1;
+  color: var(--text);
+  font-weight: 800;
 }
 
 .logo-subtitle {
-  margin: 0.2rem 0 0;
-  font-size: clamp(0.75rem, 1.7vw, 1rem);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  margin: 0.55rem 0 0;
+  color: #1f2a44;
+  font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+  font-weight: 500;
 }
 
 .login-content {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
   padding: 1.2rem;
   display: grid;
   align-content: center;
@@ -118,10 +134,11 @@ label {
 input,
 textarea {
   width: 100%;
-  border: 1px solid var(--border);
+  border: 1px solid #b8a6ec;
   border-radius: 8px;
   padding: 0.6rem;
   font: inherit;
+  background: #ecf0fa;
 }
 
 .btn {
@@ -250,8 +267,8 @@ textarea {
 }
 
 .calendar-card {
-  background: #e5e7eb;
-  border-color: #c5cfdd;
+  background: #fff;
+  border-color: var(--border);
   color: #111827;
 }
 
@@ -277,18 +294,19 @@ textarea {
 
 .calendar-card .calendar-header button,
 .calendar-card .calendar-grid button {
-  background: #ffffff;
-  color: #111827;
-  border-color: #c5cfdd;
+  background: #5b2ca5;
+  color: #ffffff;
+  border-color: #5b2ca5;
 }
 
 .calendar-card .calendar-grid button.selected {
-  border-color: #4b5563;
-  background: #dbe2ea;
+  border-color: #1adb7a;
+  background: #5b2ca5;
+  box-shadow: inset 0 0 0 2px #1adb7a;
 }
 
 .calendar-card .calendar-grid button.today .day-number {
-  color: #111827;
+  color: #ffffff;
   text-decoration: underline;
 }
 
@@ -321,13 +339,20 @@ textarea {
   font-weight: 700;
 }
 
+.day-events-inline {
+  margin-top: 0.45rem;
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
 .day-event {
   margin-top: 0.5rem;
   border-radius: 999px;
   display: inline-block;
-  background: #dcfce7;
-  color: #065f46;
-  font-size: 0.75rem;
+  background: #7f56d9;
+  color: #ffffff;
+  font-size: 0.67rem;
   padding: 0.1rem 0.45rem;
 }
 

@@ -12,22 +12,47 @@ const memoryStore = {};
 const users = {
   valeria: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
   veronica: { password: '4567', areas: ['operaciones'] },
-  admin: { password: '2026', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] }
+  admin: { password: 'admin123', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] }
 };
 const loginForm = document.getElementById('login-form');
 const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
 const loginError = document.getElementById('login-error');
 
-if (loginForm && usernameInput && loginError) {
+if (loginForm && usernameInput && passwordInput && loginError) {
+  safeRemove(storageKeys.user);
+  safeRemove(storageKeys.areas);
+  safeRemove(storageKeys.auth);
+
   loginForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const rawUser = usernameInput.value.trim();
-    const user = normalizeUser(rawUser) || 'invitado';
+    const user = normalizeUser(rawUser);
+    const pass = passwordInput.value.trim();
     const account = users[user];
-    const sessionAreas = account ? account.areas : ['wholesale', 'finanzas', 'marketing', 'operaciones'];
+
+    if (!user) {
+      loginError.textContent = 'Ingresa usuario.';
+      return;
+    }
+
+    if (!pass) {
+      loginError.textContent = 'Ingresa clave.';
+      return;
+    }
+
+    if (!account) {
+      loginError.textContent = 'Usuario no encontrado.';
+      return;
+    }
+
+    if (account.password !== pass) {
+      loginError.textContent = 'Clave incorrecta.';
+      return;
+    }
 
     safeSet(storageKeys.user, user);
-    safeSet(storageKeys.areas, JSON.stringify(sessionAreas));
+    safeSet(storageKeys.areas, JSON.stringify(account.areas));
     safeSet(storageKeys.auth, '1');
     window.location.href = 'dashboard.html';
   });
@@ -48,17 +73,13 @@ const sessionUser = document.getElementById('session-user');
 const logoutBtn = document.getElementById('logout-btn');
 
 const isDashboardPage = Boolean(monthTitle && calendarGrid && eventForm);
-const isLoginPage = Boolean(loginForm && !isDashboardPage);
-
-if (isLoginPage) {
-  safeSet(storageKeys.user, 'invitado');
-  safeSet(storageKeys.areas, JSON.stringify(['wholesale', 'finanzas', 'marketing', 'operaciones']));
-  safeSet(storageKeys.auth, '1');
-  window.location.replace('dashboard.html');
-}
 
 if (isDashboardPage) {
-  initDashboard();
+  if (!isAuthenticated()) {
+    window.location.href = 'index.html';
+  } else {
+    initDashboard();
+  }
 }
 
 if (logoutBtn) {
@@ -189,7 +210,7 @@ function initDashboard() {
 
   function renderCalendar() {
     const base = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-    const firstDay = (base.getDay() + 6) % 7;
+    const firstDay = base.getDay();
     const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
 
     monthTitle.textContent = base.toLocaleDateString('es-ES', {
@@ -213,10 +234,15 @@ function initDashboard() {
 
       const events = state.events[dateKey] || [];
       if (events.length) {
-        const marker = document.createElement('div');
-        marker.className = 'day-event';
-        marker.textContent = `${events.length} evento(s)`;
-        dayBtn.appendChild(marker);
+        const markerWrap = document.createElement('div');
+        markerWrap.className = 'day-events-inline';
+        events.slice(0, 2).forEach((eventTitle) => {
+          const marker = document.createElement('span');
+          marker.className = 'day-event';
+          marker.textContent = eventTitle.slice(0, 10).toLowerCase();
+          markerWrap.appendChild(marker);
+        });
+        dayBtn.appendChild(markerWrap);
       }
 
       if (dateKey === state.selectedDate) {
@@ -248,16 +274,6 @@ function initDashboard() {
       return;
     }
   }
-
-    events.forEach((eventTitle) => {
-      const item = document.createElement('li');
-      item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
-      eventsList.appendChild(item);
-    });
-  }
-
-  function renderChat() {
-    chatList.innerHTML = '';
 
     events.forEach((eventTitle) => {
       const item = document.createElement('li');
@@ -302,7 +318,6 @@ function initDashboard() {
       `;
       tasksList.appendChild(item);
     });
-  }
 
     tasksList.querySelectorAll('input[type=\"checkbox\"]').forEach((checkbox) => {
       checkbox.addEventListener('change', () => {
@@ -352,6 +367,17 @@ function loadAreas() {
   }
   const parsed = safeJsonParse(raw, allAreas);
   return Array.isArray(parsed) ? parsed : allAreas;
+}
+
+function isAuthenticated() {
+  const user = safeGet(storageKeys.user);
+  const auth = safeGet(storageKeys.auth);
+  if (!user || auth !== '1') {
+    return false;
+  }
+
+  const normalized = normalizeUser(user);
+  return Boolean(users[normalized]);
 }
 
 function loadEvents() {

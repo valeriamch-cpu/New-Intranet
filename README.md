@@ -2,7 +2,7 @@
 
 Prototipo de intranet web con:
 
-- Pantalla de acceso (login + vista previa).
+- Pantalla de acceso con usuario y clave.
 - Panel con calendario grupal.
 - Pizarra de notas compartida.
 - Chat grupal.
@@ -59,9 +59,9 @@ Usuarios configurados:
 
 - `valeria` / `1234` → acceso total (Wholesale, Finanzas, Marketing, Operaciones).
 - `veronica` / `4567` → acceso solo Operaciones.
-- `admin` / `2026` → acceso técnico total.
+- `admin` / `admin123` → acceso técnico total.
  
-Modo temporal actual: `index.html` redirige automáticamente a `dashboard.html` (sin clave y con acceso a todas las áreas).
+Modo actual: `index.html` solicita usuario + clave y `dashboard.html` no permite acceso directo sin sesión válida.
 
 ## Error común: “No permite actualizar porque fue por fuera”
 
