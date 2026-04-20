@@ -261,11 +261,12 @@ function applyAreaPermissions(allowedAreas) {
 
 function loadAreas() {
   const raw = safeGet(storageKeys.areas);
+  const allAreas = ['wholesale', 'finanzas', 'marketing', 'operaciones'];
   if (!raw) {
-    return ['wholesale'];
+    return allAreas;
   }
-  const parsed = safeJsonParse(raw, ['wholesale']);
-  return Array.isArray(parsed) ? parsed : ['wholesale'];
+  const parsed = safeJsonParse(raw, allAreas);
+  return Array.isArray(parsed) ? parsed : allAreas;
 }
 
 function loadEvents() {
