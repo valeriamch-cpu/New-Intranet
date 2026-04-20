@@ -144,9 +144,12 @@ function initDashboard() {
     state.currentDate = new Date(`${date}T00:00:00`);
 
     eventForm.reset();
+    document.getElementById('event-date').value = state.selectedDate;
     renderCalendar();
     renderDayEvents();
   });
+
+  document.getElementById('event-date').value = state.selectedDate;
 
   notesBoard.addEventListener('input', () => {
     safeSet(storageKeys.notes, notesBoard.value);
@@ -218,13 +221,17 @@ function initDashboard() {
     });
 
     calendarGrid.innerHTML = '';
+    const totalCells = 42;
 
-    for (let i = 0; i < firstDay; i++) {
-      const spacer = document.createElement('div');
-      calendarGrid.appendChild(spacer);
-    }
+    for (let cellIndex = 0; cellIndex < totalCells; cellIndex++) {
+      const day = cellIndex - firstDay + 1;
+      if (day < 1 || day > daysInMonth) {
+        const spacer = document.createElement('div');
+        spacer.className = 'calendar-empty';
+        calendarGrid.appendChild(spacer);
+        continue;
+      }
 
-    for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(base.getFullYear(), base.getMonth(), day);
       const dateKey = formatDate(date);
       const dayBtn = document.createElement('button');
@@ -235,12 +242,10 @@ function initDashboard() {
       if (events.length) {
         const markerWrap = document.createElement('div');
         markerWrap.className = 'day-events-inline';
-        events.slice(0, 2).forEach((eventTitle) => {
-          const marker = document.createElement('span');
-          marker.className = 'day-event';
-          marker.textContent = eventTitle.slice(0, 10).toLowerCase();
-          markerWrap.appendChild(marker);
-        });
+        const marker = document.createElement('span');
+        marker.className = 'day-event';
+        marker.textContent = `${events.length} evento${events.length > 1 ? 's' : ''}`;
+        markerWrap.appendChild(marker);
         dayBtn.appendChild(markerWrap);
       }
 
@@ -254,6 +259,7 @@ function initDashboard() {
 
       dayBtn.addEventListener('click', () => {
         state.selectedDate = dateKey;
+        document.getElementById('event-date').value = dateKey;
         renderCalendar();
         renderDayEvents();
       });
@@ -272,6 +278,13 @@ function initDashboard() {
       eventsList.appendChild(empty);
       return;
     }
+  }
+
+    events.forEach((eventTitle) => {
+      const item = document.createElement('li');
+      item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
+      eventsList.appendChild(item);
+    });
   }
 
     events.forEach((eventTitle) => {
@@ -416,7 +429,10 @@ function persistTasks(tasks) {
 }
 
 function formatDate(date) {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function formatHumanDate(dateString) {
