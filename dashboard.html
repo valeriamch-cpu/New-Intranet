@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Intranet | Panel</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">New Intranet</p>
+        <h2>Panel principal del equipo</h2>
+        <p id="session-user" class="session-user"></p>
+      </div>
+
+      <nav class="main-nav" aria-label="Secciones con carpetas Drive">
+        <a data-area="wholesale" href="https://drive.google.com/drive/folders/1Oswjbo7u0H7g6tARwwQdeY3tPJx0e1XW?usp=drive_link" target="_blank" rel="noreferrer">Wholesale</a>
+        <a data-area="finanzas" href="https://drive.google.com/drive/folders/1-COoCu54kIMru4lehm1cpL29gsivSaGc?usp=drive_link" target="_blank" rel="noreferrer">Finanzas</a>
+        <a data-area="marketing" href="https://drive.google.com/drive/folders/1--HATUoeYdKYW5DXxr9l6dizmcd77jkb?usp=drive_link" target="_blank" rel="noreferrer">Marketing</a>
+        <a data-area="operaciones" href="https://drive.google.com/drive/folders/1dB-Y4vaV6Zjd23VlQBxV0UuB1uddcmFH?usp=drive_link" target="_blank" rel="noreferrer">Operaciones</a>
+      </nav>
+
+      <a id="logout-btn" class="btn ghost" href="index.html">Cerrar sesión</a>
+    </header>
+
+    <main class="container">
+      <section class="card onboarding-card">
+        <h3>Qué verás al entrar</h3>
+        <ul>
+          <li>📅 Calendario grupal para crear y revisar eventos por día.</li>
+          <li>🧾 Pizarra compartida para notas rápidas del equipo.</li>
+          <li>💬 Chat grupal para mensajes internos.</li>
+          <li>🔗 Links de áreas arriba: Wholesale, Finanzas, Marketing y Operaciones.</li>
+        </ul>
+      </section>
+
+      <section class="card calendar-card">
+        <div class="calendar-tabs" aria-label="Secciones de calendario">
+          <button type="button" class="tab active">Calendario</button>
+          <button type="button" class="tab">Tareas y procesos</button>
+          <button type="button" class="tab">Notificaciones</button>
+          <button type="button" class="tab">Chat</button>
+        </div>
+
+        <div class="section-head">
+          <h3>Calendario grupal de eventos</h3>
+          <button id="today-btn" class="btn ghost" type="button">Ir a hoy</button>
+        </div>
+        <p class="hint">Vista mensual</p>
+        <div class="calendar-legend">
+          <span><i class="dot persona"></i> Persona</span>
+          <span><i class="dot equipo"></i> Equipo</span>
+        </div>
+
+        <div class="calendar-header">
+          <button id="prev-month" type="button">◀</button>
+          <strong id="month-title"></strong>
+          <button id="next-month" type="button">▶</button>
+        </div>
+
+        <div class="calendar-grid-head">
+          <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+        </div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+
+        <div class="event-layout">
+          <ul id="events-list" class="events-list"></ul>
+
+          <form id="event-form" class="event-form">
+            <h4>Agregar evento grupal</h4>
+            <label>
+              Fecha
+              <input id="event-date" type="date" />
+            </label>
+            <label>
+              Título
+              <input id="event-title" type="text" placeholder="Ej: Reunión semanal" required />
+            </label>
+            <button class="btn" type="submit">Guardar evento</button>
+            <p id="event-feedback" class="hint" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="grid-3">
+        <article class="card notes-card">
+          <div class="section-head">
+            <h3>Pizarra de notas</h3>
+            <button id="clear-notes" class="btn ghost" type="button">Limpiar</button>
+          </div>
+          <textarea
+            id="notes-board"
+            placeholder="Escribe aquí recordatorios, acuerdos y tareas para todo el equipo..."
+          ></textarea>
+        </article>
+
+        <article class="card chat-card">
+          <h3>Chat grupal</h3>
+          <ul id="chat-list" class="chat-list"></ul>
+
+          <form id="chat-form" class="chat-form">
+            <input id="chat-message" type="text" placeholder="Escribe un mensaje al equipo" required />
+            <button class="btn" type="submit">Enviar</button>
+          </form>
+        </article>
+
+        <article class="card tasks-card">
+          <div class="section-head">
+            <h3>Lista de tareas</h3>
+            <button id="clear-tasks" class="btn ghost" type="button">Limpiar</button>
+          </div>
+
+          <form id="task-form" class="task-form">
+            <input id="task-input" type="text" placeholder="Ej: Enviar propuesta a cliente" required />
+            <input id="task-date" type="date" aria-label="Fecha de tarea" />
+            <select id="task-color" aria-label="Color de tarea">
+              <option value="#ef4444">Rojo</option>
+              <option value="#f59e0b">Naranjo</option>
+              <option value="#10b981" selected>Verde</option>
+              <option value="#3b82f6">Azul</option>
+              <option value="#8b5cf6">Morado</option>
+            </select>
+            <button class="btn" type="submit">Agregar</button>
+          </form>
+
+          <ul id="tasks-list" class="tasks-list"></ul>
+        </article>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
