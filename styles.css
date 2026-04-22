@@ -253,7 +253,7 @@ textarea {
 
 .calendar-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap: 1rem;
 }
@@ -267,7 +267,7 @@ textarea {
 }
 
 .calendar-card {
-  background: #fff;
+  background: #f8f8fb;
   border-color: var(--border);
   color: #111827;
 }
@@ -283,9 +283,9 @@ textarea {
 }
 
 .calendar-card .btn.ghost {
-  background: #ffffff;
-  border-color: #c5cfdd;
-  color: #111827;
+  background: #5b2ca5;
+  border-color: #5b2ca5;
+  color: #fff;
 }
 
 .calendar-card .calendar-grid-head {
@@ -325,6 +325,13 @@ textarea {
   text-align: center;
 }
 
+.calendar-grid-head span {
+  background: #e8e0f5;
+  border: 1px solid #d8caf8;
+  border-radius: 8px;
+  padding: 0.65rem 0.2rem;
+}
+
 .calendar-grid button {
   text-align: left;
   padding: 0.5rem;
@@ -332,6 +339,7 @@ textarea {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  font-weight: 700;
 }
 
 .calendar-grid button.selected {
@@ -354,17 +362,72 @@ textarea {
 .day-event {
   border-radius: 999px;
   display: inline-block;
-  background: #7f56d9;
+  background: #8b5cf6;
   color: #ffffff;
   font-size: 0.64rem;
   padding: 0.1rem 0.45rem;
+  font-weight: 700;
+}
+
+.day-task {
+  border-radius: 999px;
+  display: inline-block;
+  background: #3b82f6;
+  color: #ffffff;
+  font-size: 0.64rem;
+  padding: 0.1rem 0.45rem;
+  font-weight: 700;
 }
 
 .calendar-empty {
   min-height: 84px;
   border-radius: 8px;
-  background: #eee8ff;
-  border: 1px dashed #d8caf8;
+  background: #f8f8fb;
+  border: 1px solid #ded8ea;
+}
+
+.calendar-tabs {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.calendar-tabs .tab {
+  border: 1px solid #d2c4f1;
+  border-radius: 10px;
+  background: #efe9fb;
+  color: #25124d;
+  padding: 0.5rem 0.7rem;
+  cursor: default;
+}
+
+.calendar-tabs .tab.active {
+  background: #5b2ca5;
+  color: #fff;
+  border-color: #5b2ca5;
+}
+
+.calendar-legend {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+}
+
+.dot.persona {
+  background: #22c55e;
+}
+
+.dot.equipo {
+  background: #3b82f6;
 }
 
 .event-layout {
@@ -428,7 +491,7 @@ textarea {
 
 .task-form {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr 145px 120px auto;
   gap: 0.6rem;
 }
 
@@ -449,6 +512,7 @@ textarea {
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
+  background: #fff;
 }
 
 .tasks-list li.done label {
@@ -474,6 +538,10 @@ textarea {
   .event-layout,
   .grid-2,
   .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .task-form {
     grid-template-columns: 1fr;
   }
 

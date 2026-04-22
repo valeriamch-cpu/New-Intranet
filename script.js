@@ -133,10 +133,14 @@ function initDashboard() {
 
   eventForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const date = document.getElementById('event-date').value || state.selectedDate;
+    const eventDateInput = document.getElementById('event-date');
+    const date = eventDateInput.value || state.selectedDate || formatDate(new Date());
     const title = document.getElementById('event-title').value.trim();
 
     if (!title) {
+      if (eventFeedback) {
+        eventFeedback.textContent = 'Escribe un título para el evento.';
+      }
       return;
     }
 
@@ -148,12 +152,19 @@ function initDashboard() {
     state.currentDate = new Date(`${date}T00:00:00`);
 
     eventForm.reset();
-    document.getElementById('event-date').value = state.selectedDate;
+    eventDateInput.value = state.selectedDate;
+    if (eventFeedback) {
+      eventFeedback.textContent = `Evento guardado para ${formatHumanDate(state.selectedDate)}.`;
+    }
     renderCalendar();
     renderDayEvents();
   });
 
   document.getElementById('event-date').value = state.selectedDate;
+  const taskDateInput = document.getElementById('task-date');
+  if (taskDateInput) {
+    taskDateInput.value = state.selectedDate;
+  }
 
   notesBoard.addEventListener('input', () => {
     safeSet(storageKeys.notes, notesBoard.value);
@@ -192,6 +203,8 @@ function initDashboard() {
   taskForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const input = document.getElementById('task-input');
+    const taskDate = document.getElementById('task-date');
+    const colorInput = document.getElementById('task-color');
     const title = input.value.trim();
     if (!title) {
       return;
@@ -200,11 +213,18 @@ function initDashboard() {
     state.tasks.push({
       id: Date.now().toString(),
       title,
-      done: false
+      done: false,
+      color: colorInput ? colorInput.value : '#10b981',
+      dueDate: (taskDate && taskDate.value) || state.selectedDate
     });
 
     persistTasks(state.tasks);
     input.value = '';
+    if (taskDate) {
+      taskDate.value = state.selectedDate;
+    }
+    renderCalendar();
+    renderDayEvents();
     renderTasks();
   });
 
@@ -219,10 +239,11 @@ function initDashboard() {
     const firstDay = base.getDay();
     const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
 
-    monthTitle.textContent = base.toLocaleDateString('es-ES', {
+    const monthLabel = base.toLocaleDateString('es-ES', {
       month: 'long',
       year: 'numeric'
     });
+    monthTitle.textContent = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
 
     calendarGrid.innerHTML = '';
     const totalCells = 42;
@@ -243,13 +264,34 @@ function initDashboard() {
       dayBtn.innerHTML = `<div class="day-number">${day}</div>`;
 
       const events = state.events[dateKey] || [];
+      const tasksForDate = state.tasks.filter((task) => task.dueDate === dateKey);
       if (events.length) {
         const markerWrap = document.createElement('div');
         markerWrap.className = 'day-events-inline';
         const marker = document.createElement('span');
-        marker.className = 'day-event';
-        marker.textContent = `${events.length} evento${events.length > 1 ? 's' : ''}`;
+        marker.className = 'day-event persona';
+        marker.textContent = 'persona';
         markerWrap.appendChild(marker);
+        if (events.length > 1) {
+          const markerExtra = document.createElement('span');
+          markerExtra.className = 'day-event persona';
+          markerExtra.textContent = 'persona';
+          markerWrap.appendChild(markerExtra);
+        }
+        if (tasksForDate.length) {
+          const taskMarker = document.createElement('span');
+          taskMarker.className = 'day-task equipo';
+          taskMarker.textContent = 'equipo';
+          markerWrap.appendChild(taskMarker);
+        }
+        dayBtn.appendChild(markerWrap);
+      } else if (tasksForDate.length) {
+        const markerWrap = document.createElement('div');
+        markerWrap.className = 'day-events-inline';
+        const taskMarker = document.createElement('span');
+        taskMarker.className = 'day-task equipo';
+        taskMarker.textContent = 'equipo';
+        markerWrap.appendChild(taskMarker);
         dayBtn.appendChild(markerWrap);
       }
 
@@ -264,6 +306,9 @@ function initDashboard() {
       dayBtn.addEventListener('click', () => {
         state.selectedDate = dateKey;
         document.getElementById('event-date').value = dateKey;
+        if (taskDateInput) {
+          taskDateInput.value = dateKey;
+        }
         renderCalendar();
         renderDayEvents();
       });
@@ -274,9 +319,10 @@ function initDashboard() {
 
   function renderDayEvents() {
     const events = state.events[state.selectedDate] || [];
+    const dayTasks = state.tasks.filter((task) => task.dueDate === state.selectedDate);
     eventsList.innerHTML = '';
 
-    if (!events.length) {
+    if (!events.length && !dayTasks.length) {
       const empty = document.createElement('li');
       empty.textContent = `No hay eventos para ${formatHumanDate(state.selectedDate)}.`;
       eventsList.appendChild(empty);
@@ -287,6 +333,12 @@ function initDashboard() {
     events.forEach((eventTitle) => {
       const item = document.createElement('li');
       item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
+      eventsList.appendChild(item);
+    });
+
+    dayTasks.forEach((task) => {
+      const item = document.createElement('li');
+      item.textContent = `🗂️ Tarea: ${task.title}${task.done ? ' (completada)' : ''}`;
       eventsList.appendChild(item);
     });
   }
@@ -321,8 +373,9 @@ function initDashboard() {
     state.tasks.forEach((task) => {
       const item = document.createElement('li');
       item.className = task.done ? 'done' : '';
+      item.style.setProperty('--task-color', task.color || '#10b981');
       item.innerHTML = `
-        <label><input type=\"checkbox\" ${task.done ? 'checked' : ''} data-id=\"${task.id}\" /> ${task.title}</label>
+        <label><input type=\"checkbox\" ${task.done ? 'checked' : ''} data-id=\"${task.id}\" /> ${task.title} <small>(${task.dueDate || 'sin fecha'})</small></label>
         <button type=\"button\" data-remove=\"${task.id}\">Eliminar</button>
       `;
       tasksList.appendChild(item);
