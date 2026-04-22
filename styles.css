@@ -354,21 +354,10 @@ textarea {
 .day-event {
   border-radius: 999px;
   display: inline-block;
-  background: #dcfce7;
-  color: #14532d;
+  background: #7f56d9;
+  color: #ffffff;
   font-size: 0.64rem;
   padding: 0.1rem 0.45rem;
-  font-weight: 700;
-}
-
-.day-task {
-  border-radius: 999px;
-  display: inline-block;
-  background: #dbeafe;
-  color: #1e3a8a;
-  font-size: 0.64rem;
-  padding: 0.1rem 0.45rem;
-  font-weight: 700;
 }
 
 .calendar-empty {
@@ -439,7 +428,7 @@ textarea {
 
 .task-form {
   display: grid;
-  grid-template-columns: 1fr 145px 120px auto;
+  grid-template-columns: 1fr auto;
   gap: 0.6rem;
 }
 
@@ -460,7 +449,6 @@ textarea {
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  background: #fff;
 }
 
 .tasks-list li.done label {
@@ -486,10 +474,6 @@ textarea {
   .event-layout,
   .grid-2,
   .grid-3 {
-    grid-template-columns: 1fr;
-  }
-
-  .task-form {
     grid-template-columns: 1fr;
   }
 

@@ -40,7 +40,6 @@
           <h3>Calendario grupal de eventos</h3>
           <button id="today-btn" class="btn ghost" type="button">Ir a hoy</button>
         </div>
-        <p class="hint">Vista mensual</p>
 
         <div class="calendar-header">
           <button id="prev-month" type="button">◀</button>
@@ -67,7 +66,6 @@
               <input id="event-title" type="text" placeholder="Ej: Reunión semanal" required />
             </label>
             <button class="btn" type="submit">Guardar evento</button>
-            <p id="event-feedback" class="hint" role="status" aria-live="polite"></p>
           </form>
         </div>
       </section>
@@ -102,14 +100,6 @@
 
           <form id="task-form" class="task-form">
             <input id="task-input" type="text" placeholder="Ej: Enviar propuesta a cliente" required />
-            <input id="task-date" type="date" aria-label="Fecha de tarea" />
-            <select id="task-color" aria-label="Color de tarea">
-              <option value="#ef4444">Rojo</option>
-              <option value="#f59e0b">Naranjo</option>
-              <option value="#10b981" selected>Verde</option>
-              <option value="#3b82f6">Azul</option>
-              <option value="#8b5cf6">Morado</option>
-            </select>
             <button class="btn" type="submit">Agregar</button>
           </form>
 
