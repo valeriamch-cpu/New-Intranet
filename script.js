@@ -61,6 +61,7 @@ if (loginForm && usernameInput && passwordInput && loginError) {
 const monthTitle = document.getElementById('month-title');
 const calendarGrid = document.getElementById('calendar-grid');
 const eventsList = document.getElementById('events-list');
+const eventFeedback = document.getElementById('event-feedback');
 const eventForm = document.getElementById('event-form');
 const notesBoard = document.getElementById('notes-board');
 const clearNotesBtn = document.getElementById('clear-notes');
@@ -123,6 +124,9 @@ function initDashboard() {
     const now = new Date();
     state.currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
     state.selectedDate = formatDate(now);
+    if (taskDateInput) {
+      taskDateInput.value = state.selectedDate;
+    }
     renderCalendar();
     renderDayEvents();
   });
@@ -278,6 +282,7 @@ function initDashboard() {
       eventsList.appendChild(empty);
       return;
     }
+  }
 
     events.forEach((eventTitle) => {
       const item = document.createElement('li');

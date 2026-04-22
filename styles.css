@@ -442,6 +442,7 @@ textarea {
 
 .tasks-list li {
   border: 1px solid var(--border);
+  border-left: 8px solid var(--task-color, #10b981);
   border-radius: 8px;
   padding: 0.55rem;
   display: flex;
