@@ -16,8 +16,8 @@
 
       <nav class="main-nav" aria-label="Secciones con carpetas Drive">
         <a data-area="wholesale" href="https://drive.google.com/drive/folders/1Oswjbo7u0H7g6tARwwQdeY3tPJx0e1XW?usp=drive_link" target="_blank" rel="noreferrer">Wholesale</a>
-        <a data-area="finanzas" href="https://drive.google.com/drive/folders/1-COoCu54kIMru4lehm1cpL29gsivSaGc?usp=drive_link" target="_blank" rel="noreferrer">Finanzas</a>
         <a data-area="marketing" href="https://drive.google.com/drive/folders/1--HATUoeYdKYW5DXxr9l6dizmcd77jkb?usp=drive_link" target="_blank" rel="noreferrer">Marketing</a>
+        <a data-area="finanzas" href="https://drive.google.com/drive/folders/1-COoCu54kIMru4lehm1cpL29gsivSaGc?usp=drive_link" target="_blank" rel="noreferrer">Finanzas</a>
         <a data-area="operaciones" href="https://drive.google.com/drive/folders/1dB-Y4vaV6Zjd23VlQBxV0UuB1uddcmFH?usp=drive_link" target="_blank" rel="noreferrer">Operaciones</a>
       </nav>
 
@@ -30,27 +30,15 @@
         <ul>
           <li>📅 Calendario grupal para crear y revisar eventos por día.</li>
           <li>🧾 Pizarra compartida para notas rápidas del equipo.</li>
-          <li>💬 Chat grupal para mensajes internos.</li>
-          <li>🔗 Links de áreas arriba: Wholesale, Finanzas, Marketing y Operaciones.</li>
+          <li>💸 Rinde gastos con nombre, monto, detalle y foto.</li>
+          <li>🗂️ Acceso a carpetas de Wholesale, Marketing, Finanzas y Operaciones.</li>
         </ul>
       </section>
 
-      <section class="card calendar-card">
-        <div class="calendar-tabs" aria-label="Secciones de calendario">
-          <button type="button" class="tab active">Calendario</button>
-          <button type="button" class="tab">Tareas y procesos</button>
-          <button type="button" class="tab">Notificaciones</button>
-          <button type="button" class="tab">Chat</button>
-        </div>
-
+      <section class="card calendar-card" data-module="calendar">
         <div class="section-head">
           <h3>Calendario grupal de eventos</h3>
           <button id="today-btn" class="btn ghost" type="button">Ir a hoy</button>
-        </div>
-        <p class="hint">Vista mensual</p>
-        <div class="calendar-legend">
-          <span><i class="dot persona"></i> Persona</span>
-          <span><i class="dot equipo"></i> Equipo</span>
         </div>
 
         <div class="calendar-header">
@@ -84,28 +72,32 @@
       </section>
 
       <section class="grid-3">
-        <article class="card notes-card">
+        <article class="card notes-card" data-module="board">
           <div class="section-head">
             <h3>Pizarra de notas</h3>
             <button id="clear-notes" class="btn ghost" type="button">Limpiar</button>
           </div>
-          <textarea
-            id="notes-board"
-            placeholder="Escribe aquí recordatorios, acuerdos y tareas para todo el equipo..."
-          ></textarea>
+          <textarea id="notes-board" placeholder="Escribe aquí recordatorios, acuerdos y tareas para todo el equipo..."></textarea>
         </article>
 
-        <article class="card chat-card">
-          <h3>Chat grupal</h3>
-          <ul id="chat-list" class="chat-list"></ul>
+        <article class="card expenses-card" data-module="expenses">
+          <div class="section-head">
+            <h3>Rinde gastos</h3>
+            <a class="btn ghost" href="https://drive.google.com/drive/folders/1-COoCu54kIMru4lehm1cpL29gsivSaGc?usp=drive_link" target="_blank" rel="noreferrer">Abrir Drive</a>
+          </div>
 
-          <form id="chat-form" class="chat-form">
-            <input id="chat-message" type="text" placeholder="Escribe un mensaje al equipo" required />
-            <button class="btn" type="submit">Enviar</button>
+          <form id="expense-form" class="expense-form">
+            <input id="expense-name" type="text" placeholder="Nombre" required />
+            <input id="expense-amount" type="number" min="0" step="0.01" placeholder="Monto" required />
+            <input id="expense-detail" type="text" placeholder="Detalle" required />
+            <input id="expense-photo" type="file" accept="image/*" />
+            <button class="btn" type="submit">Guardar gasto</button>
           </form>
+          <p id="expense-feedback" class="hint" role="status" aria-live="polite"></p>
+          <ul id="expenses-list" class="expenses-list"></ul>
         </article>
 
-        <article class="card tasks-card">
+        <article class="card tasks-card" data-module="tasks">
           <div class="section-head">
             <h3>Lista de tareas</h3>
             <button id="clear-tasks" class="btn ghost" type="button">Limpiar</button>
@@ -114,13 +106,6 @@
           <form id="task-form" class="task-form">
             <input id="task-input" type="text" placeholder="Ej: Enviar propuesta a cliente" required />
             <input id="task-date" type="date" aria-label="Fecha de tarea" />
-            <select id="task-color" aria-label="Color de tarea">
-              <option value="#ef4444">Rojo</option>
-              <option value="#f59e0b">Naranjo</option>
-              <option value="#10b981" selected>Verde</option>
-              <option value="#3b82f6">Azul</option>
-              <option value="#8b5cf6">Morado</option>
-            </select>
             <button class="btn" type="submit">Agregar</button>
           </form>
 

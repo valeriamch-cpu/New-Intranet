@@ -1,45 +1,53 @@
 const storageKeys = {
   events: 'intranet-group-events',
   notes: 'intranet-notes-board',
-  chat: 'intranet-group-chat',
   tasks: 'intranet-tasks',
+  expenses: 'intranet-expenses',
   user: 'intranet-user',
   areas: 'intranet-areas',
+  modules: 'intranet-modules',
   auth: 'intranet-auth'
 };
 
-const memoryStore = {};
 const users = {
-  valeria: { password: '1234', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] },
-  veronica: { password: '4567', areas: ['operaciones'] },
-  admin: { password: 'admin123', areas: ['wholesale', 'finanzas', 'marketing', 'operaciones'] }
+  valeria: {
+    password: '1234',
+    areas: ['wholesale', 'marketing', 'finanzas', 'operaciones'],
+    modules: ['calendar', 'board', 'expenses', 'tasks']
+  },
+  veronica: {
+    password: '4567',
+    areas: ['operaciones'],
+    modules: ['calendar', 'board', 'tasks']
+  },
+  admin: {
+    password: 'admin123',
+    areas: ['wholesale', 'marketing', 'finanzas', 'operaciones'],
+    modules: ['calendar', 'board', 'expenses', 'tasks']
+  }
 };
-const loginForm = document.getElementById('login-form');
-const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
-const loginError = document.getElementById('login-error');
 
-if (loginForm && usernameInput && passwordInput && loginError) {
+const loginForm = document.getElementById('login-form');
+if (loginForm) initLogin();
+
+const dashboardRoot = document.getElementById('month-title');
+if (dashboardRoot) initDashboard();
+
+function initLogin() {
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const loginError = document.getElementById('login-error');
+
   safeRemove(storageKeys.user);
   safeRemove(storageKeys.areas);
+  safeRemove(storageKeys.modules);
   safeRemove(storageKeys.auth);
 
   loginForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const rawUser = usernameInput.value.trim();
-    const user = normalizeUser(rawUser);
+    const user = normalizeUser(usernameInput.value);
     const pass = passwordInput.value.trim();
     const account = users[user];
-
-    if (!user) {
-      loginError.textContent = 'Ingresa usuario.';
-      return;
-    }
-
-    if (!pass) {
-      loginError.textContent = 'Ingresa clave.';
-      return;
-    }
 
     if (!account) {
       loginError.textContent = 'Usuario no encontrado.';
@@ -53,62 +61,58 @@ if (loginForm && usernameInput && passwordInput && loginError) {
 
     safeSet(storageKeys.user, user);
     safeSet(storageKeys.areas, JSON.stringify(account.areas));
+    safeSet(storageKeys.modules, JSON.stringify(account.modules));
     safeSet(storageKeys.auth, '1');
     window.location.href = 'dashboard.html';
   });
 }
 
-const monthTitle = document.getElementById('month-title');
-const calendarGrid = document.getElementById('calendar-grid');
-const eventsList = document.getElementById('events-list');
-const eventFeedback = document.getElementById('event-feedback');
-const eventForm = document.getElementById('event-form');
-const notesBoard = document.getElementById('notes-board');
-const clearNotesBtn = document.getElementById('clear-notes');
-const chatList = document.getElementById('chat-list');
-const chatForm = document.getElementById('chat-form');
-const taskForm = document.getElementById('task-form');
-const tasksList = document.getElementById('tasks-list');
-const clearTasksBtn = document.getElementById('clear-tasks');
-const sessionUser = document.getElementById('session-user');
-const logoutBtn = document.getElementById('logout-btn');
-
-const isDashboardPage = Boolean(monthTitle && calendarGrid && eventForm);
-
-if (isDashboardPage) {
-  safeSet(storageKeys.user, safeGet(storageKeys.user) || 'invitado');
-  safeSet(storageKeys.areas, JSON.stringify(['wholesale', 'finanzas', 'marketing', 'operaciones']));
-  safeSet(storageKeys.auth, '1');
-  initDashboard();
-}
-
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', () => {
-    safeRemove(storageKeys.user);
-    safeRemove(storageKeys.areas);
-    safeRemove(storageKeys.auth);
-  });
-}
-
 function initDashboard() {
-  const allowedAreas = loadAreas();
+  if (!isAuthenticated()) {
+    window.location.href = 'index.html';
+    return;
+  }
+
   const state = {
     currentDate: new Date(),
     selectedDate: formatDate(new Date()),
     user: safeGet(storageKeys.user) || 'invitado',
-    events: loadEvents(),
-    chat: loadChat(),
-    tasks: loadTasks()
+    events: loadJson(storageKeys.events, {}),
+    tasks: loadJson(storageKeys.tasks, []),
+    expenses: loadJson(storageKeys.expenses, [])
   };
 
-  sessionUser.textContent = `Conectado como: ${state.user}`;
-  applyAreaPermissions(allowedAreas);
-  notesBoard.value = safeGet(storageKeys.notes) || '';
+  const sessionUser = document.getElementById('session-user');
+  const notesBoard = document.getElementById('notes-board');
+  const logoutBtn = document.getElementById('logout-btn');
+  const eventForm = document.getElementById('event-form');
+  const eventsList = document.getElementById('events-list');
+  const eventFeedback = document.getElementById('event-feedback');
+  const monthTitle = document.getElementById('month-title');
+  const calendarGrid = document.getElementById('calendar-grid');
+  const taskForm = document.getElementById('task-form');
+  const tasksList = document.getElementById('tasks-list');
+  const expenseForm = document.getElementById('expense-form');
+  const expensesList = document.getElementById('expenses-list');
+  const expenseFeedback = document.getElementById('expense-feedback');
 
-  renderCalendar();
-  renderDayEvents();
-  renderChat();
-  renderTasks();
+  sessionUser.textContent = `Conectado como: ${state.user}`;
+  applyAreaPermissions(loadJson(storageKeys.areas, []));
+  applyModulePermissions(loadJson(storageKeys.modules, []));
+
+  notesBoard.value = safeGet(storageKeys.notes) || '';
+  notesBoard.addEventListener('input', () => safeSet(storageKeys.notes, notesBoard.value));
+  document.getElementById('clear-notes').addEventListener('click', () => {
+    notesBoard.value = '';
+    safeRemove(storageKeys.notes);
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    safeRemove(storageKeys.user);
+    safeRemove(storageKeys.areas);
+    safeRemove(storageKeys.modules);
+    safeRemove(storageKeys.auth);
+  });
 
   document.getElementById('prev-month').addEventListener('click', () => {
     state.currentDate.setMonth(state.currentDate.getMonth() - 1);
@@ -124,132 +128,90 @@ function initDashboard() {
     const now = new Date();
     state.currentDate = new Date(now.getFullYear(), now.getMonth(), 1);
     state.selectedDate = formatDate(now);
-    if (taskDateInput) {
-      taskDateInput.value = state.selectedDate;
-    }
+    document.getElementById('event-date').value = state.selectedDate;
+    document.getElementById('task-date').value = state.selectedDate;
     renderCalendar();
     renderDayEvents();
   });
 
   eventForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const eventDateInput = document.getElementById('event-date');
-    const date = eventDateInput.value || state.selectedDate || formatDate(new Date());
+    const date = document.getElementById('event-date').value || state.selectedDate;
     const title = document.getElementById('event-title').value.trim();
-
-    if (!title) {
-      if (eventFeedback) {
-        eventFeedback.textContent = 'Escribe un título para el evento.';
-      }
-      return;
-    }
+    if (!title) return;
 
     state.events[date] = state.events[date] || [];
     state.events[date].push(title);
     safeSet(storageKeys.events, JSON.stringify(state.events));
 
-    state.selectedDate = date;
-    state.currentDate = new Date(`${date}T00:00:00`);
-
     eventForm.reset();
-    eventDateInput.value = state.selectedDate;
-    if (eventFeedback) {
-      eventFeedback.textContent = `Evento guardado para ${formatHumanDate(state.selectedDate)}.`;
-    }
+    document.getElementById('event-date').value = date;
+    state.selectedDate = date;
+    eventFeedback.textContent = `Evento guardado para ${formatHumanDate(date)}.`;
     renderCalendar();
     renderDayEvents();
-  });
-
-  document.getElementById('event-date').value = state.selectedDate;
-  const taskDateInput = document.getElementById('task-date');
-  if (taskDateInput) {
-    taskDateInput.value = state.selectedDate;
-  }
-
-  notesBoard.addEventListener('input', () => {
-    safeSet(storageKeys.notes, notesBoard.value);
-  });
-
-  clearNotesBtn.addEventListener('click', () => {
-    notesBoard.value = '';
-    safeRemove(storageKeys.notes);
-  });
-
-  chatForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-
-    const input = document.getElementById('chat-message');
-    const text = input.value.trim();
-
-    if (!text) {
-      return;
-    }
-
-    state.chat.push({
-      user: state.user,
-      text,
-      createdAt: new Date().toISOString()
-    });
-
-    if (state.chat.length > 80) {
-      state.chat = state.chat.slice(-80);
-    }
-
-    safeSet(storageKeys.chat, JSON.stringify(state.chat));
-    input.value = '';
-    renderChat();
   });
 
   taskForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const input = document.getElementById('task-input');
-    const taskDate = document.getElementById('task-date');
-    const colorInput = document.getElementById('task-color');
-    const title = input.value.trim();
-    if (!title) {
+    const title = document.getElementById('task-input').value.trim();
+    const dueDate = document.getElementById('task-date').value || state.selectedDate;
+    if (!title) return;
+
+    state.tasks.push({ id: String(Date.now()), title, dueDate, done: false });
+    safeSet(storageKeys.tasks, JSON.stringify(state.tasks));
+    taskForm.reset();
+    document.getElementById('task-date').value = state.selectedDate;
+    renderTasks();
+    renderDayEvents();
+  });
+
+  document.getElementById('clear-tasks').addEventListener('click', () => {
+    state.tasks = [];
+    safeSet(storageKeys.tasks, JSON.stringify(state.tasks));
+    renderTasks();
+    renderDayEvents();
+  });
+
+  expenseForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const name = document.getElementById('expense-name').value.trim();
+    const amount = Number(document.getElementById('expense-amount').value);
+    const detail = document.getElementById('expense-detail').value.trim();
+    const photoInput = document.getElementById('expense-photo');
+
+    if (!name || !amount || !detail) {
+      expenseFeedback.textContent = 'Completa nombre, monto y detalle.';
       return;
     }
 
-    state.tasks.push({
-      id: Date.now().toString(),
-      title,
-      done: false,
-      color: colorInput ? colorInput.value : '#10b981',
-      dueDate: (taskDate && taskDate.value) || state.selectedDate
+    const photoData = await toBase64(photoInput.files[0]);
+    state.expenses.unshift({
+      id: String(Date.now()),
+      name,
+      amount,
+      detail,
+      photoData,
+      createdAt: new Date().toISOString()
     });
 
-    persistTasks(state.tasks);
-    input.value = '';
-    if (taskDate) {
-      taskDate.value = state.selectedDate;
-    }
-    renderCalendar();
-    renderDayEvents();
-    renderTasks();
-  });
-
-  clearTasksBtn.addEventListener('click', () => {
-    state.tasks = [];
-    persistTasks(state.tasks);
-    renderTasks();
+    safeSet(storageKeys.expenses, JSON.stringify(state.expenses));
+    expenseForm.reset();
+    expenseFeedback.textContent = 'Gasto guardado. Abre Drive para cargar respaldo y foto al folder de Finanzas.';
+    renderExpenses();
   });
 
   function renderCalendar() {
     const base = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-    const firstDay = base.getDay();
-    const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
-
-    const monthLabel = base.toLocaleDateString('es-ES', {
-      month: 'long',
-      year: 'numeric'
-    });
+    const monthLabel = base.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
     monthTitle.textContent = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
 
+    const firstDay = base.getDay();
+    const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
     calendarGrid.innerHTML = '';
-    const totalCells = 42;
 
-    for (let cellIndex = 0; cellIndex < totalCells; cellIndex++) {
-      const day = cellIndex - firstDay + 1;
+    for (let i = 0; i < 42; i++) {
+      const day = i - firstDay + 1;
       if (day < 1 || day > daysInMonth) {
         const spacer = document.createElement('div');
         spacer.className = 'calendar-empty';
@@ -259,223 +221,175 @@ function initDashboard() {
 
       const date = new Date(base.getFullYear(), base.getMonth(), day);
       const dateKey = formatDate(date);
-      const dayBtn = document.createElement('button');
-      dayBtn.type = 'button';
-      dayBtn.innerHTML = `<div class="day-number">${day}</div>`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.innerHTML = `<div class="day-number">${day}</div>`;
 
-      const events = state.events[dateKey] || [];
-      const tasksForDate = state.tasks.filter((task) => task.dueDate === dateKey);
-      if (events.length) {
-        const markerWrap = document.createElement('div');
-        markerWrap.className = 'day-events-inline';
+      if ((state.events[dateKey] || []).length > 0) {
         const marker = document.createElement('span');
         marker.className = 'day-event persona';
-        marker.textContent = 'persona';
-        markerWrap.appendChild(marker);
-        if (events.length > 1) {
-          const markerExtra = document.createElement('span');
-          markerExtra.className = 'day-event persona';
-          markerExtra.textContent = 'persona';
-          markerWrap.appendChild(markerExtra);
-        }
-        if (tasksForDate.length) {
-          const taskMarker = document.createElement('span');
-          taskMarker.className = 'day-task equipo';
-          taskMarker.textContent = 'equipo';
-          markerWrap.appendChild(taskMarker);
-        }
-        dayBtn.appendChild(markerWrap);
-      } else if (tasksForDate.length) {
-        const markerWrap = document.createElement('div');
-        markerWrap.className = 'day-events-inline';
-        const taskMarker = document.createElement('span');
-        taskMarker.className = 'day-task equipo';
-        taskMarker.textContent = 'equipo';
-        markerWrap.appendChild(taskMarker);
-        dayBtn.appendChild(markerWrap);
+        marker.textContent = 'evento';
+        btn.appendChild(marker);
       }
 
-      if (dateKey === state.selectedDate) {
-        dayBtn.classList.add('selected');
-      }
+      if (dateKey === state.selectedDate) btn.classList.add('selected');
+      if (dateKey === formatDate(new Date())) btn.classList.add('today');
 
-      if (dateKey === formatDate(new Date())) {
-        dayBtn.classList.add('today');
-      }
-
-      dayBtn.addEventListener('click', () => {
+      btn.addEventListener('click', () => {
         state.selectedDate = dateKey;
         document.getElementById('event-date').value = dateKey;
-        if (taskDateInput) {
-          taskDateInput.value = dateKey;
-        }
+        document.getElementById('task-date').value = dateKey;
         renderCalendar();
         renderDayEvents();
       });
 
-      calendarGrid.appendChild(dayBtn);
+      calendarGrid.appendChild(btn);
     }
   }
 
   function renderDayEvents() {
+    eventsList.innerHTML = '';
     const events = state.events[state.selectedDate] || [];
     const dayTasks = state.tasks.filter((task) => task.dueDate === state.selectedDate);
-    eventsList.innerHTML = '';
 
     if (!events.length && !dayTasks.length) {
       const empty = document.createElement('li');
-      empty.textContent = `No hay eventos para ${formatHumanDate(state.selectedDate)}.`;
+      empty.textContent = `No hay actividades para ${formatHumanDate(state.selectedDate)}.`;
       eventsList.appendChild(empty);
       return;
     }
-  }
 
-    events.forEach((eventTitle) => {
-      const item = document.createElement('li');
-      item.textContent = `${formatHumanDate(state.selectedDate)} — ${eventTitle}`;
-      eventsList.appendChild(item);
+    events.forEach((item) => {
+      const li = document.createElement('li');
+      li.textContent = `📅 ${item}`;
+      eventsList.appendChild(li);
     });
 
     dayTasks.forEach((task) => {
-      const item = document.createElement('li');
-      item.textContent = `🗂️ Tarea: ${task.title}${task.done ? ' (completada)' : ''}`;
-      eventsList.appendChild(item);
-    });
-  }
-
-  function renderChat() {
-    chatList.innerHTML = '';
-
-    if (!state.chat.length) {
-      const empty = document.createElement('li');
-      empty.textContent = 'Aún no hay mensajes en el chat grupal.';
-      chatList.appendChild(empty);
-      return;
-    }
-
-    state.chat.forEach((message) => {
-      const item = document.createElement('li');
-      item.innerHTML = `<strong>${message.user}:</strong> ${message.text}<div class="chat-meta">${formatTimestamp(message.createdAt)}</div>`;
-      chatList.appendChild(item);
+      const li = document.createElement('li');
+      li.textContent = `🗂️ ${task.title}`;
+      eventsList.appendChild(li);
     });
   }
 
   function renderTasks() {
     tasksList.innerHTML = '';
-
     if (!state.tasks.length) {
-      const empty = document.createElement('li');
-      empty.textContent = 'No hay tareas pendientes.';
-      tasksList.appendChild(empty);
+      tasksList.innerHTML = '<li>No hay tareas pendientes.</li>';
       return;
     }
 
     state.tasks.forEach((task) => {
-      const item = document.createElement('li');
-      item.className = task.done ? 'done' : '';
-      item.style.setProperty('--task-color', task.color || '#10b981');
-      item.innerHTML = `
-        <label><input type=\"checkbox\" ${task.done ? 'checked' : ''} data-id=\"${task.id}\" /> ${task.title} <small>(${task.dueDate || 'sin fecha'})</small></label>
-        <button type=\"button\" data-remove=\"${task.id}\">Eliminar</button>
+      const li = document.createElement('li');
+      li.className = task.done ? 'done' : '';
+      li.innerHTML = `
+        <label><input type="checkbox" data-id="${task.id}" ${task.done ? 'checked' : ''}/> ${task.title} <small>(${task.dueDate})</small></label>
+        <button type="button" data-remove="${task.id}">Eliminar</button>
       `;
-      tasksList.appendChild(item);
+      tasksList.appendChild(li);
     });
 
-    tasksList.querySelectorAll('input[type=\"checkbox\"]').forEach((checkbox) => {
-      checkbox.addEventListener('change', () => {
-        const id = checkbox.getAttribute('data-id');
-        const task = state.tasks.find((t) => t.id === id);
-        if (!task) {
-          return;
-        }
-        task.done = checkbox.checked;
-        persistTasks(state.tasks);
+    tasksList.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+      cb.addEventListener('change', () => {
+        const id = cb.getAttribute('data-id');
+        const task = state.tasks.find((item) => item.id === id);
+        if (!task) return;
+        task.done = cb.checked;
+        safeSet(storageKeys.tasks, JSON.stringify(state.tasks));
         renderTasks();
       });
     });
 
-    tasksList.querySelectorAll('button[data-remove]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const id = button.getAttribute('data-remove');
+    tasksList.querySelectorAll('button[data-remove]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-remove');
         state.tasks = state.tasks.filter((task) => task.id !== id);
-        persistTasks(state.tasks);
+        safeSet(storageKeys.tasks, JSON.stringify(state.tasks));
         renderTasks();
+        renderDayEvents();
       });
     });
   }
-}
 
-function applyAreaPermissions(allowedAreas) {
-  const links = document.querySelectorAll('[data-area]');
-  links.forEach((link) => {
-    const area = link.dataset.area;
-    if (allowedAreas.includes(area)) {
+  function renderExpenses() {
+    expensesList.innerHTML = '';
+    if (!state.expenses.length) {
+      expensesList.innerHTML = '<li>Aún no hay gastos registrados.</li>';
       return;
     }
 
+    state.expenses.forEach((expense) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <strong>${expense.name}</strong> · $${expense.amount.toFixed(2)}<br/>
+        <small>${expense.detail} · ${formatTimestamp(expense.createdAt)}</small>
+        ${expense.photoData ? `<img src="${expense.photoData}" alt="Comprobante de ${expense.name}" />` : ''}
+      `;
+      expensesList.appendChild(li);
+    });
+  }
+
+  document.getElementById('event-date').value = state.selectedDate;
+  document.getElementById('task-date').value = state.selectedDate;
+  renderCalendar();
+  renderDayEvents();
+  renderTasks();
+  renderExpenses();
+}
+
+function applyAreaPermissions(allowedAreas) {
+  document.querySelectorAll('[data-area]').forEach((link) => {
+    const area = link.dataset.area;
+    if (allowedAreas.includes(area)) return;
     link.classList.add('disabled');
-    link.removeAttribute('target');
-    link.setAttribute('aria-disabled', 'true');
-    link.setAttribute('title', 'Sin acceso para tu usuario');
     link.href = '#';
+    link.removeAttribute('target');
   });
 }
 
-function loadAreas() {
-  const raw = safeGet(storageKeys.areas);
-  const allAreas = ['wholesale', 'finanzas', 'marketing', 'operaciones'];
-  if (!raw) {
-    return allAreas;
-  }
-  const parsed = safeJsonParse(raw, allAreas);
-  return Array.isArray(parsed) ? parsed : allAreas;
+function applyModulePermissions(allowedModules) {
+  document.querySelectorAll('[data-module]').forEach((moduleCard) => {
+    const module = moduleCard.dataset.module;
+    if (!allowedModules.includes(module)) moduleCard.classList.add('hidden');
+  });
 }
 
 function isAuthenticated() {
-  return true;
+  return safeGet(storageKeys.auth) === '1';
 }
 
-function loadEvents() {
-  const raw = safeGet(storageKeys.events);
-  if (!raw) {
-    return {
-      '2026-04-20': ['Kickoff semanal del equipo'],
-      '2026-04-23': ['Cierre de pendientes del mes']
-    };
+function loadJson(key, fallback) {
+  const raw = safeGet(key);
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
   }
-
-  const parsed = safeJsonParse(raw, null);
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    return {
-      '2026-04-20': ['Kickoff semanal del equipo'],
-      '2026-04-23': ['Cierre de pendientes del mes']
-    };
-  }
-
-  return parsed;
 }
 
-function loadChat() {
-  const raw = safeGet(storageKeys.chat);
-  if (!raw) {
-    return [];
+function safeGet(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
   }
-
-  const parsed = safeJsonParse(raw, []);
-  return Array.isArray(parsed) ? parsed : [];
 }
 
-function loadTasks() {
-  const raw = safeGet(storageKeys.tasks);
-  if (!raw) {
-    return [];
+function safeSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // no-op in restricted environments
   }
-  const parsed = safeJsonParse(raw, []);
-  return Array.isArray(parsed) ? parsed : [];
 }
 
-function persistTasks(tasks) {
-  safeSet(storageKeys.tasks, JSON.stringify(tasks));
+function safeRemove(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // no-op in restricted environments
+  }
 }
 
 function formatDate(date) {
@@ -503,46 +417,19 @@ function formatTimestamp(isoDate) {
   });
 }
 
-function safeGet(key) {
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return memoryStore[key] || null;
-  }
-}
-
-function safeSet(key, value) {
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    memoryStore[key] = value;
-  }
-}
-
-function safeRemove(key) {
-  try {
-    localStorage.removeItem(key);
-  } catch {
-    delete memoryStore[key];
-  }
-}
-
-function safeJsonParse(rawValue, fallbackValue) {
-  try {
-    return JSON.parse(rawValue);
-  } catch {
-    return fallbackValue;
-  }
-}
-
 function normalizeUser(value) {
-  const base = String(value || '')
-    .trim()
-    .toLowerCase();
+  const base = String(value || '').trim().toLowerCase();
+  return typeof base.normalize === 'function'
+    ? base.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    : base;
+}
 
-  if (typeof base.normalize !== 'function') {
-    return base;
-  }
-
-  return base.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+function toBase64(file) {
+  if (!file) return Promise.resolve('');
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result || '');
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
 }
