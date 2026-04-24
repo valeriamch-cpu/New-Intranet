@@ -93,6 +93,15 @@
             <input id="expense-photo" type="file" accept="image/*" />
             <button class="btn" type="submit">Guardar gasto</button>
           </form>
+          <div class="expense-actions">
+            <button id="save-expense-draft" class="btn ghost" type="button">Guardar borrador</button>
+            <button id="finalize-expense-report" class="btn" type="button">Finalizar rendición</button>
+          </div>
+          <form id="expense-report-form" class="expense-report-form hidden">
+            <input id="report-number" type="text" placeholder="N° rendición (ej: R-2026-015)" required />
+            <input id="report-owner" type="text" placeholder="Nombre responsable" required />
+            <button class="btn" type="submit">Crear carpeta sugerida</button>
+          </form>
           <p id="expense-feedback" class="hint" role="status" aria-live="polite"></p>
           <ul id="expenses-list" class="expenses-list"></ul>
         </article>

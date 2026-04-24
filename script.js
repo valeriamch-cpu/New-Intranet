@@ -3,6 +3,7 @@ const storageKeys = {
   notes: 'intranet-notes-board',
   tasks: 'intranet-tasks',
   expenses: 'intranet-expenses',
+  expenseDraft: 'intranet-expense-draft',
   user: 'intranet-user',
   areas: 'intranet-areas',
   modules: 'intranet-modules',
@@ -79,7 +80,8 @@ function initDashboard() {
     user: safeGet(storageKeys.user) || 'invitado',
     events: loadJson(storageKeys.events, {}),
     tasks: loadJson(storageKeys.tasks, []),
-    expenses: loadJson(storageKeys.expenses, [])
+    expenses: loadJson(storageKeys.expenses, []),
+    expenseDraft: loadJson(storageKeys.expenseDraft, [])
   };
 
   const sessionUser = document.getElementById('session-user');
@@ -95,6 +97,9 @@ function initDashboard() {
   const expenseForm = document.getElementById('expense-form');
   const expensesList = document.getElementById('expenses-list');
   const expenseFeedback = document.getElementById('expense-feedback');
+  const saveDraftBtn = document.getElementById('save-expense-draft');
+  const finalizeReportBtn = document.getElementById('finalize-expense-report');
+  const expenseReportForm = document.getElementById('expense-report-form');
 
   sessionUser.textContent = `Conectado como: ${state.user}`;
   applyAreaPermissions(loadJson(storageKeys.areas, []));
@@ -196,9 +201,49 @@ function initDashboard() {
     });
 
     safeSet(storageKeys.expenses, JSON.stringify(state.expenses));
+    state.expenseDraft = [...state.expenses];
+    safeSet(storageKeys.expenseDraft, JSON.stringify(state.expenseDraft));
     expenseForm.reset();
-    expenseFeedback.textContent = 'Gasto guardado. Abre Drive para cargar respaldo y foto al folder de Finanzas.';
+    expenseFeedback.textContent = 'Gasto agregado al borrador de rendición.';
     renderExpenses();
+  });
+
+  saveDraftBtn.addEventListener('click', () => {
+    if (!state.expenses.length) {
+      expenseFeedback.textContent = 'No hay gastos para guardar en borrador.';
+      return;
+    }
+    state.expenseDraft = [...state.expenses];
+    safeSet(storageKeys.expenseDraft, JSON.stringify(state.expenseDraft));
+    expenseFeedback.textContent = `Borrador guardado con ${state.expenseDraft.length} gasto(s).`;
+  });
+
+  finalizeReportBtn.addEventListener('click', () => {
+    expenseReportForm.classList.remove('hidden');
+    document.getElementById('report-number').focus();
+  });
+
+  expenseReportForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const reportNumber = document.getElementById('report-number').value.trim();
+    const reportOwner = document.getElementById('report-owner').value.trim();
+    const expensesToExport = state.expenseDraft.length ? state.expenseDraft : state.expenses;
+
+    if (!reportNumber || !reportOwner) {
+      expenseFeedback.textContent = 'Completa número y nombre para la rendición.';
+      return;
+    }
+
+    if (!expensesToExport.length) {
+      expenseFeedback.textContent = 'No hay gastos en borrador para finalizar.';
+      return;
+    }
+
+    const folderName = `${reportNumber} - ${reportOwner}`;
+    downloadExpenseReport(folderName, expensesToExport);
+    expenseFeedback.textContent = `Rendición lista. En Drive crea la carpeta "${folderName}" y sube el archivo descargado + fotos.`;
+    expenseReportForm.reset();
+    expenseReportForm.classList.add('hidden');
   });
 
   function renderCalendar() {
@@ -335,6 +380,24 @@ function initDashboard() {
   renderDayEvents();
   renderTasks();
   renderExpenses();
+}
+
+function downloadExpenseReport(folderName, expenses) {
+  const payload = {
+    folderName,
+    generatedAt: new Date().toISOString(),
+    expenses
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  const safeName = folderName.replace(/[^\w\- ]+/g, '').trim() || 'rendicion';
+  link.href = url;
+  link.download = `${safeName}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 function applyAreaPermissions(allowedAreas) {
