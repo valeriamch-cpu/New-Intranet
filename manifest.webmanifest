@@ -1,0 +1,11 @@
+{
+  "name": "New Intranet",
+  "short_name": "Intranet",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ece7f7",
+  "theme_color": "#5b2ca5",
+  "lang": "es",
+  "icons": []
+}
