@@ -34,6 +34,14 @@ if (loginForm) initLogin();
 const dashboardRoot = document.getElementById('month-title');
 if (dashboardRoot) initDashboard();
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {
+      // no-op
+    });
+  });
+}
+
 function initLogin() {
   const usernameInput = document.getElementById('username');
   const passwordInput = document.getElementById('password');
