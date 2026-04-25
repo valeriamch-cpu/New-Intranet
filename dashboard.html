@@ -90,7 +90,8 @@
             <input id="expense-name" type="text" placeholder="Nombre" required />
             <input id="expense-amount" type="number" min="0" step="0.01" placeholder="Monto" required />
             <input id="expense-detail" type="text" placeholder="Detalle" required />
-            <input id="expense-photo" type="file" accept="image/*" />
+            <input id="expense-photo" type="file" accept="image/*" capture="environment" />
+            <p class="hint">Desde celular puedes tomar la foto al instante o elegirla de tu galería.</p>
             <button class="btn" type="submit">Guardar gasto</button>
           </form>
           <div class="expense-actions">

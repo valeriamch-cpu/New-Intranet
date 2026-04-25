@@ -32,7 +32,7 @@ Abrir: `http://localhost:8080`
 
 ## Flujo de rendición de gastos
 
-1. Carga gastos uno a uno con nombre, monto, detalle y foto.
+1. Carga gastos uno a uno con nombre, monto, detalle y foto (desde celular puedes tomarla directo con la cámara).
 2. Usa **Guardar borrador** para consolidar muchos gastos.
 3. Haz clic en **Finalizar rendición** e ingresa:
    - Número de rendición.
