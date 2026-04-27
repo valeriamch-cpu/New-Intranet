@@ -6,7 +6,7 @@ Intranet HTML5 con acceso por usuario y permisos por módulo/área.
 
 - Login con usuario/clave.
 - Permisos por usuario para módulos y carpetas.
-- Interfaz fluida para celular (Android/iOS) + modo instalable (PWA básica).
+- Interfaz fluida para celular (Android/iOS).
 - Página principal con:
   - Pizarra de notas.
   - Calendario de eventos compartidos.
@@ -30,8 +30,6 @@ python3 -m http.server 8080
 ```
 
 Abrir: `http://localhost:8080`
-
-En celular puedes abrir el sitio y usar “Agregar a pantalla de inicio” para ejecutarlo como app web.
 
 ## Flujo de rendición de gastos
 
