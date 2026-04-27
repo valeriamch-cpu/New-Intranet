@@ -3,7 +3,7 @@ const storageKeys = {
   notes: 'intranet-notes-board',
   tasks: 'intranet-tasks',
   expenses: 'intranet-expenses',
-  expenseDraft: 'intranet-expense-draft',
+  expenseReport: 'intranet-expense-report',
   user: 'intranet-user',
   areas: 'intranet-areas',
   modules: 'intranet-modules',
@@ -89,9 +89,7 @@ function initDashboard() {
     selectedDate: formatDate(new Date()),
     user: safeGet(storageKeys.user) || 'invitado',
     events: loadJson(storageKeys.events, {}),
-    tasks: loadJson(storageKeys.tasks, []),
-    expenses: loadJson(storageKeys.expenses, []),
-    expenseDraft: loadJson(storageKeys.expenseDraft, [])
+    tasks: loadJson(storageKeys.tasks, [])
   };
 
   const sessionUser = document.getElementById('session-user');
@@ -316,13 +314,15 @@ function initExpensesPage() {
   const expenseForm = document.getElementById('expense-form');
   const expensesList = document.getElementById('expenses-list');
   const expenseFeedback = document.getElementById('expense-feedback');
-  const saveDraftBtn = document.getElementById('save-expense-draft');
   const finalizeReportBtn = document.getElementById('finalize-expense-report');
-  const expenseReportForm = document.getElementById('expense-report-form');
+  const resetReportBtn = document.getElementById('reset-expense-report');
+  const summaryBox = document.getElementById('expense-summary');
+  const reportNumberInput = document.getElementById('report-number');
+  const reportOwnerInput = document.getElementById('report-owner');
   const logoutBtn = document.getElementById('logout-btn');
   const state = {
     expenses: loadJson(storageKeys.expenses, []),
-    expenseDraft: loadJson(storageKeys.expenseDraft, [])
+    report: loadJson(storageKeys.expenseReport, { number: '', owner: '', locked: false })
   };
 
   sessionLabel.textContent = `Conectado como: ${user}`;
@@ -333,72 +333,93 @@ function initExpensesPage() {
     safeRemove(storageKeys.auth);
   });
 
+  function persistExpenses() {
+    safeSet(storageKeys.expenses, JSON.stringify(state.expenses));
+  }
+
+  function persistReport() {
+    safeSet(storageKeys.expenseReport, JSON.stringify(state.report));
+  }
+
+  function syncReportInputs() {
+    reportNumberInput.value = state.report.number || '';
+    reportOwnerInput.value = state.report.owner || '';
+    reportNumberInput.disabled = Boolean(state.report.locked);
+    reportOwnerInput.disabled = Boolean(state.report.locked);
+  }
+
   expenseForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const name = document.getElementById('expense-name').value.trim();
+    const reportNumber = reportNumberInput.value.trim();
+    const reportOwner = reportOwnerInput.value.trim();
     const amount = Number(document.getElementById('expense-amount').value);
     const detail = document.getElementById('expense-detail').value.trim();
     const photoInput = document.getElementById('expense-photo');
 
-    if (!name || !amount || !detail) {
-      expenseFeedback.textContent = 'Completa nombre, monto y detalle.';
+    if (!reportNumber || !reportOwner || !amount || !detail) {
+      expenseFeedback.textContent = 'Completa N° rendición, responsable, monto y detalle.';
       return;
+    }
+
+    if (!state.report.locked) {
+      state.report.number = reportNumber;
+      state.report.owner = reportOwner;
+      state.report.locked = true;
+      persistReport();
+      syncReportInputs();
     }
 
     const photoData = await toBase64(photoInput.files[0]);
     state.expenses.unshift({
       id: String(Date.now()),
-      name,
       amount,
       detail,
       photoData,
       createdAt: new Date().toISOString()
     });
 
-    safeSet(storageKeys.expenses, JSON.stringify(state.expenses));
-    state.expenseDraft = [...state.expenses];
-    safeSet(storageKeys.expenseDraft, JSON.stringify(state.expenseDraft));
-    expenseForm.reset();
-    expenseFeedback.textContent = 'Gasto agregado al borrador de rendición.';
+    persistExpenses();
+    document.getElementById('expense-amount').value = '';
+    document.getElementById('expense-detail').value = '';
+    photoInput.value = '';
+    expenseFeedback.textContent = 'Gasto guardado. Puedes seguir agregando monto y detalle.';
     renderExpenses();
   });
 
-  saveDraftBtn.addEventListener('click', () => {
-    if (!state.expenses.length) {
-      expenseFeedback.textContent = 'No hay gastos para guardar en borrador.';
-      return;
-    }
-    state.expenseDraft = [...state.expenses];
-    safeSet(storageKeys.expenseDraft, JSON.stringify(state.expenseDraft));
-    expenseFeedback.textContent = `Borrador guardado con ${state.expenseDraft.length} gasto(s).`;
-  });
-
   finalizeReportBtn.addEventListener('click', () => {
-    expenseReportForm.classList.remove('hidden');
-    document.getElementById('report-number').focus();
+    if (!state.report.number || !state.report.owner || !state.expenses.length) {
+      expenseFeedback.textContent = 'Primero carga al menos un gasto con N° rendición y responsable.';
+      return;
+    }
+
+    const folderName = `${state.report.number} - ${state.report.owner}`;
+    const total = state.expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+    summaryBox.classList.remove('hidden');
+    summaryBox.innerHTML = `
+      <h4>Resumen de rendición</h4>
+      <p><strong>N°:</strong> ${state.report.number}</p>
+      <p><strong>Responsable:</strong> ${state.report.owner}</p>
+      <p><strong>Cantidad de gastos:</strong> ${state.expenses.length}</p>
+      <p><strong>Total:</strong> $${total.toFixed(2)}</p>
+      <p class="hint">Carpeta sugerida en Drive: ${folderName}</p>
+    `;
+
+    downloadExpenseReport(folderName, state.expenses, state.report);
+    expenseFeedback.textContent = 'Rendición finalizada. Se descargó el resumen en JSON.';
   });
 
-  expenseReportForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const reportNumber = document.getElementById('report-number').value.trim();
-    const reportOwner = document.getElementById('report-owner').value.trim();
-    const expensesToExport = state.expenseDraft.length ? state.expenseDraft : state.expenses;
-
-    if (!reportNumber || !reportOwner) {
-      expenseFeedback.textContent = 'Completa número y nombre para la rendición.';
-      return;
-    }
-
-    if (!expensesToExport.length) {
-      expenseFeedback.textContent = 'No hay gastos en borrador para finalizar.';
-      return;
-    }
-
-    const folderName = `${reportNumber} - ${reportOwner}`;
-    downloadExpenseReport(folderName, expensesToExport);
-    expenseFeedback.textContent = `Rendición lista. En Drive crea la carpeta "${folderName}" y sube el archivo descargado + fotos.`;
-    expenseReportForm.reset();
-    expenseReportForm.classList.add('hidden');
+  resetReportBtn.addEventListener('click', () => {
+    state.expenses = [];
+    state.report = { number: '', owner: '', locked: false };
+    safeRemove(storageKeys.expenses);
+    safeRemove(storageKeys.expenseReport);
+    syncReportInputs();
+    summaryBox.classList.add('hidden');
+    summaryBox.innerHTML = '';
+    expenseForm.reset();
+    expenseFeedback.textContent = 'Lista para una nueva rendición.';
+    renderExpenses();
   });
 
   function renderExpenses() {
@@ -411,21 +432,23 @@ function initExpensesPage() {
     state.expenses.forEach((expense) => {
       const li = document.createElement('li');
       li.innerHTML = `
-        <strong>${expense.name}</strong> · $${expense.amount.toFixed(2)}<br/>
+        <strong>$${expense.amount.toFixed(2)}</strong><br/>
         <small>${expense.detail} · ${formatTimestamp(expense.createdAt)}</small>
-        ${expense.photoData ? `<img src="${expense.photoData}" alt="Comprobante de ${expense.name}" />` : ''}
+        ${expense.photoData ? `<img src="${expense.photoData}" alt="Comprobante de gasto" />` : ''}
       `;
       expensesList.appendChild(li);
     });
   }
 
+  syncReportInputs();
   renderExpenses();
 }
 
-function downloadExpenseReport(folderName, expenses) {
+function downloadExpenseReport(folderName, expenses, report) {
   const payload = {
     folderName,
     generatedAt: new Date().toISOString(),
+    report,
     expenses
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
