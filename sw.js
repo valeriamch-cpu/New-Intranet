@@ -32,6 +32,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+<<<<<<< codex/crear-intranet-con-permisos-de-usuario-h439i5
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
@@ -45,6 +46,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+=======
+>>>>>>> main
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
