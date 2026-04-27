@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#5b2ca5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>New Intranet | Rinde gastos</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">New Intranet</p>
+        <h2>Rinde gastos</h2>
+        <p id="expenses-session-user" class="session-user"></p>
+      </div>
+
+      <nav class="main-nav" aria-label="Navegación">
+        <a href="dashboard.html">Volver al panel</a>
+        <a href="https://drive.google.com/drive/folders/1-COoCu54kIMru4lehm1cpL29gsivSaGc?usp=drive_link" target="_blank" rel="noreferrer">Abrir carpeta Drive</a>
+      </nav>
+
+      <a id="logout-btn" class="btn ghost" href="index.html">Cerrar sesión</a>
+    </header>
+
+    <main id="expenses-page" class="container">
+      <section class="card">
+        <h3>Rinde gastos</h3>
+        <p class="hint">Sección vacía para comenzar desde cero.</p>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
