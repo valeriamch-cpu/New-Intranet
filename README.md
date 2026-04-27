@@ -10,7 +10,7 @@ Intranet HTML5 con acceso por usuario y permisos por módulo/área.
 - Página principal con:
   - Pizarra de notas.
   - Calendario de eventos compartidos.
-  - Rinde gastos (nombre, monto, detalle y foto), con guardado de borrador y cierre por N° de rendición.
+  - Link de Rinde gastos a una vista separada y restringida por permisos (detalle + foto desde celular).
 - 4 carpetas con links directos a Drive:
   - Wholesale
   - Marketing
@@ -35,10 +35,11 @@ En celular puedes abrir el sitio y usar “Agregar a pantalla de inicio” para 
 
 ## Flujo de rendición de gastos
 
-1. Carga gastos uno a uno con nombre, monto, detalle y foto (desde celular puedes tomarla directo con la cámara).
-2. Usa **Guardar borrador** para consolidar muchos gastos.
-3. Haz clic en **Finalizar rendición** e ingresa:
+1. En el panel principal, entra por el link **Ir a Rinde gastos** (solo disponible para usuarios habilitados).
+2. Carga gastos uno a uno con nombre, monto, detalle y foto (desde celular puedes tomarla directo con la cámara).
+3. Usa **Guardar borrador** para consolidar muchos gastos.
+4. Haz clic en **Finalizar rendición** e ingresa:
    - Número de rendición.
    - Nombre del responsable.
-4. Se descarga un JSON con nombre `<numero> - <nombre>.json`.
-5. En Drive, crea la carpeta con ese mismo nombre y sube JSON + fotos.
+5. Se descarga un JSON con nombre `<numero> - <nombre>.json`.
+6. En Drive, crea la carpeta con ese mismo nombre y sube JSON + fotos.

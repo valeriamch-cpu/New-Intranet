@@ -33,6 +33,8 @@ if (loginForm) initLogin();
 
 const dashboardRoot = document.getElementById('month-title');
 if (dashboardRoot) initDashboard();
+const expensesPageRoot = document.getElementById('expenses-page');
+if (expensesPageRoot) initExpensesPage();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -102,12 +104,6 @@ function initDashboard() {
   const calendarGrid = document.getElementById('calendar-grid');
   const taskForm = document.getElementById('task-form');
   const tasksList = document.getElementById('tasks-list');
-  const expenseForm = document.getElementById('expense-form');
-  const expensesList = document.getElementById('expenses-list');
-  const expenseFeedback = document.getElementById('expense-feedback');
-  const saveDraftBtn = document.getElementById('save-expense-draft');
-  const finalizeReportBtn = document.getElementById('finalize-expense-report');
-  const expenseReportForm = document.getElementById('expense-report-form');
 
   sessionUser.textContent = `Conectado como: ${state.user}`;
   applyAreaPermissions(loadJson(storageKeys.areas, []));
@@ -186,73 +182,6 @@ function initDashboard() {
     renderDayEvents();
   });
 
-  expenseForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const name = document.getElementById('expense-name').value.trim();
-    const amount = Number(document.getElementById('expense-amount').value);
-    const detail = document.getElementById('expense-detail').value.trim();
-    const photoInput = document.getElementById('expense-photo');
-
-    if (!name || !amount || !detail) {
-      expenseFeedback.textContent = 'Completa nombre, monto y detalle.';
-      return;
-    }
-
-    const photoData = await toBase64(photoInput.files[0]);
-    state.expenses.unshift({
-      id: String(Date.now()),
-      name,
-      amount,
-      detail,
-      photoData,
-      createdAt: new Date().toISOString()
-    });
-
-    safeSet(storageKeys.expenses, JSON.stringify(state.expenses));
-    state.expenseDraft = [...state.expenses];
-    safeSet(storageKeys.expenseDraft, JSON.stringify(state.expenseDraft));
-    expenseForm.reset();
-    expenseFeedback.textContent = 'Gasto agregado al borrador de rendición.';
-    renderExpenses();
-  });
-
-  saveDraftBtn.addEventListener('click', () => {
-    if (!state.expenses.length) {
-      expenseFeedback.textContent = 'No hay gastos para guardar en borrador.';
-      return;
-    }
-    state.expenseDraft = [...state.expenses];
-    safeSet(storageKeys.expenseDraft, JSON.stringify(state.expenseDraft));
-    expenseFeedback.textContent = `Borrador guardado con ${state.expenseDraft.length} gasto(s).`;
-  });
-
-  finalizeReportBtn.addEventListener('click', () => {
-    expenseReportForm.classList.remove('hidden');
-    document.getElementById('report-number').focus();
-  });
-
-  expenseReportForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const reportNumber = document.getElementById('report-number').value.trim();
-    const reportOwner = document.getElementById('report-owner').value.trim();
-    const expensesToExport = state.expenseDraft.length ? state.expenseDraft : state.expenses;
-
-    if (!reportNumber || !reportOwner) {
-      expenseFeedback.textContent = 'Completa número y nombre para la rendición.';
-      return;
-    }
-
-    if (!expensesToExport.length) {
-      expenseFeedback.textContent = 'No hay gastos en borrador para finalizar.';
-      return;
-    }
-
-    const folderName = `${reportNumber} - ${reportOwner}`;
-    downloadExpenseReport(folderName, expensesToExport);
-    expenseFeedback.textContent = `Rendición lista. En Drive crea la carpeta "${folderName}" y sube el archivo descargado + fotos.`;
-    expenseReportForm.reset();
-    expenseReportForm.classList.add('hidden');
-  });
 
   function renderCalendar() {
     const base = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
@@ -364,6 +293,114 @@ function initDashboard() {
     });
   }
 
+  document.getElementById('event-date').value = state.selectedDate;
+  document.getElementById('task-date').value = state.selectedDate;
+  renderCalendar();
+  renderDayEvents();
+  renderTasks();
+}
+
+function initExpensesPage() {
+  if (!isAuthenticated()) {
+    window.location.href = 'index.html';
+    return;
+  }
+  const modules = loadJson(storageKeys.modules, []);
+  if (!modules.includes('expenses')) {
+    window.location.href = 'dashboard.html';
+    return;
+  }
+
+  const user = safeGet(storageKeys.user) || 'invitado';
+  const sessionLabel = document.getElementById('expenses-session-user');
+  const expenseForm = document.getElementById('expense-form');
+  const expensesList = document.getElementById('expenses-list');
+  const expenseFeedback = document.getElementById('expense-feedback');
+  const saveDraftBtn = document.getElementById('save-expense-draft');
+  const finalizeReportBtn = document.getElementById('finalize-expense-report');
+  const expenseReportForm = document.getElementById('expense-report-form');
+  const logoutBtn = document.getElementById('logout-btn');
+  const state = {
+    expenses: loadJson(storageKeys.expenses, []),
+    expenseDraft: loadJson(storageKeys.expenseDraft, [])
+  };
+
+  sessionLabel.textContent = `Conectado como: ${user}`;
+  logoutBtn.addEventListener('click', () => {
+    safeRemove(storageKeys.user);
+    safeRemove(storageKeys.areas);
+    safeRemove(storageKeys.modules);
+    safeRemove(storageKeys.auth);
+  });
+
+  expenseForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const name = document.getElementById('expense-name').value.trim();
+    const amount = Number(document.getElementById('expense-amount').value);
+    const detail = document.getElementById('expense-detail').value.trim();
+    const photoInput = document.getElementById('expense-photo');
+
+    if (!name || !amount || !detail) {
+      expenseFeedback.textContent = 'Completa nombre, monto y detalle.';
+      return;
+    }
+
+    const photoData = await toBase64(photoInput.files[0]);
+    state.expenses.unshift({
+      id: String(Date.now()),
+      name,
+      amount,
+      detail,
+      photoData,
+      createdAt: new Date().toISOString()
+    });
+
+    safeSet(storageKeys.expenses, JSON.stringify(state.expenses));
+    state.expenseDraft = [...state.expenses];
+    safeSet(storageKeys.expenseDraft, JSON.stringify(state.expenseDraft));
+    expenseForm.reset();
+    expenseFeedback.textContent = 'Gasto agregado al borrador de rendición.';
+    renderExpenses();
+  });
+
+  saveDraftBtn.addEventListener('click', () => {
+    if (!state.expenses.length) {
+      expenseFeedback.textContent = 'No hay gastos para guardar en borrador.';
+      return;
+    }
+    state.expenseDraft = [...state.expenses];
+    safeSet(storageKeys.expenseDraft, JSON.stringify(state.expenseDraft));
+    expenseFeedback.textContent = `Borrador guardado con ${state.expenseDraft.length} gasto(s).`;
+  });
+
+  finalizeReportBtn.addEventListener('click', () => {
+    expenseReportForm.classList.remove('hidden');
+    document.getElementById('report-number').focus();
+  });
+
+  expenseReportForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const reportNumber = document.getElementById('report-number').value.trim();
+    const reportOwner = document.getElementById('report-owner').value.trim();
+    const expensesToExport = state.expenseDraft.length ? state.expenseDraft : state.expenses;
+
+    if (!reportNumber || !reportOwner) {
+      expenseFeedback.textContent = 'Completa número y nombre para la rendición.';
+      return;
+    }
+
+    if (!expensesToExport.length) {
+      expenseFeedback.textContent = 'No hay gastos en borrador para finalizar.';
+      return;
+    }
+
+    const folderName = `${reportNumber} - ${reportOwner}`;
+    downloadExpenseReport(folderName, expensesToExport);
+    expenseFeedback.textContent = `Rendición lista. En Drive crea la carpeta "${folderName}" y sube el archivo descargado + fotos.`;
+    expenseReportForm.reset();
+    expenseReportForm.classList.add('hidden');
+  });
+
   function renderExpenses() {
     expensesList.innerHTML = '';
     if (!state.expenses.length) {
@@ -382,11 +419,6 @@ function initDashboard() {
     });
   }
 
-  document.getElementById('event-date').value = state.selectedDate;
-  document.getElementById('task-date').value = state.selectedDate;
-  renderCalendar();
-  renderDayEvents();
-  renderTasks();
   renderExpenses();
 }
 
