@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#5b2ca5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>New Intranet | Rinde gastos</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">New Intranet</p>
+        <h2>Rinde gastos</h2>
+        <p id="expenses-session-user" class="session-user"></p>
+      </div>
+
+      <nav class="main-nav" aria-label="Navegación">
+        <a href="dashboard.html">Volver al panel</a>
+        <a href="https://drive.google.com/drive/folders/1-COoCu54kIMru4lehm1cpL29gsivSaGc?usp=drive_link" target="_blank" rel="noreferrer">Abrir carpeta Drive</a>
+      </nav>
+
+      <a id="logout-btn" class="btn ghost" href="index.html">Cerrar sesión</a>
+    </header>
+
+    <main id="expenses-page" class="container">
+      <section class="card">
+        <h3>Detalle de rendición</h3>
+        <p class="hint">Formato: Número rendición, nombre, gasto, monto y foto. Graba y luego finaliza para guardar carpeta.</p>
+
+        <form id="expense-form" class="expense-form">
+          <input id="report-number" type="text" placeholder="N° rendición (ej: R-2026-015)" required />
+          <input id="report-name" type="text" placeholder="Nombre" required />
+          <input id="expense-detail" type="text" placeholder="Gasto" required />
+          <input id="expense-amount" type="number" min="0" step="0.01" placeholder="Monto" required />
+          <input id="expense-photo" type="file" accept="image/*" capture="environment" />
+          <p class="hint">Puedes sacar foto desde el celular o adjuntar una imagen existente.</p>
+          <button class="btn" type="submit">Guardar gasto</button>
+        </form>
+
+        <div class="expense-actions">
+          <button id="finalize-expense-report" class="btn" type="button">Finalizar</button>
+          <button id="reset-expense-report" class="btn ghost" type="button">Nueva rendición</button>
+        </div>
+
+        <p id="expense-feedback" class="hint" role="status" aria-live="polite"></p>
+        <ul id="expenses-list" class="expenses-list"></ul>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
