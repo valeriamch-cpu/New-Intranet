@@ -36,7 +36,6 @@ En celular puedes abrir el sitio y usar “Agregar a pantalla de inicio” para 
 ## Flujo de rendición de gastos
 
 1. En el panel principal, entra por el link **Ir a Rinde gastos** (solo disponible para usuarios habilitados).
-2. Primer gasto: completa **N° rendición + responsable + monto + detalle** y (opcional) foto desde celular.
-3. Siguientes gastos: agrega solo **monto + detalle** y foto opcional.
-4. Presiona **Finalizar** para ver el resumen total y descargar el JSON.
-5. En Drive, crea la carpeta `<numero> - <responsable>` y sube JSON + fotos.
+2. Primer gasto: completa **responsable + N° rendición + detalle + monto** y (opcional) foto desde celular.
+3. Siguientes gastos: agrega **detalle + monto** y foto opcional.
+4. Presiona **Finalizar** para guardar la rendición en una carpeta con nombre `<numero> - <responsable>`.

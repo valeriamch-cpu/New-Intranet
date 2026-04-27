@@ -4,6 +4,7 @@ const storageKeys = {
   tasks: 'intranet-tasks',
   expenses: 'intranet-expenses',
   expenseReport: 'intranet-expense-report',
+  expenseFolders: 'intranet-expense-folders',
   user: 'intranet-user',
   areas: 'intranet-areas',
   modules: 'intranet-modules',
@@ -316,13 +317,13 @@ function initExpensesPage() {
   const expenseFeedback = document.getElementById('expense-feedback');
   const finalizeReportBtn = document.getElementById('finalize-expense-report');
   const resetReportBtn = document.getElementById('reset-expense-report');
-  const summaryBox = document.getElementById('expense-summary');
   const reportNumberInput = document.getElementById('report-number');
   const reportOwnerInput = document.getElementById('report-owner');
   const logoutBtn = document.getElementById('logout-btn');
   const state = {
     expenses: loadJson(storageKeys.expenses, []),
-    report: loadJson(storageKeys.expenseReport, { number: '', owner: '', locked: false })
+    report: loadJson(storageKeys.expenseReport, { number: '', owner: '', locked: false }),
+    folders: loadJson(storageKeys.expenseFolders, [])
   };
 
   sessionLabel.textContent = `Conectado como: ${user}`;
@@ -393,20 +394,21 @@ function initExpensesPage() {
     }
 
     const folderName = `${state.report.number} - ${state.report.owner}`;
-    const total = state.expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-
-    summaryBox.classList.remove('hidden');
-    summaryBox.innerHTML = `
-      <h4>Resumen de rendición</h4>
-      <p><strong>N°:</strong> ${state.report.number}</p>
-      <p><strong>Responsable:</strong> ${state.report.owner}</p>
-      <p><strong>Cantidad de gastos:</strong> ${state.expenses.length}</p>
-      <p><strong>Total:</strong> $${total.toFixed(2)}</p>
-      <p class="hint">Carpeta sugerida en Drive: ${folderName}</p>
-    `;
-
-    downloadExpenseReport(folderName, state.expenses, state.report);
-    expenseFeedback.textContent = 'Rendición finalizada. Se descargó el resumen en JSON.';
+    state.folders.unshift({
+      folderName,
+      createdAt: new Date().toISOString(),
+      report: { ...state.report },
+      expenses: [...state.expenses]
+    });
+    safeSet(storageKeys.expenseFolders, JSON.stringify(state.folders));
+    state.expenses = [];
+    state.report = { number: '', owner: '', locked: false };
+    safeRemove(storageKeys.expenses);
+    safeRemove(storageKeys.expenseReport);
+    syncReportInputs();
+    expenseForm.reset();
+    renderExpenses();
+    expenseFeedback.textContent = `Rendición guardada en carpeta: ${folderName}.`;
   });
 
   resetReportBtn.addEventListener('click', () => {
@@ -415,8 +417,6 @@ function initExpensesPage() {
     safeRemove(storageKeys.expenses);
     safeRemove(storageKeys.expenseReport);
     syncReportInputs();
-    summaryBox.classList.add('hidden');
-    summaryBox.innerHTML = '';
     expenseForm.reset();
     expenseFeedback.textContent = 'Lista para una nueva rendición.';
     renderExpenses();
@@ -442,25 +442,6 @@ function initExpensesPage() {
 
   syncReportInputs();
   renderExpenses();
-}
-
-function downloadExpenseReport(folderName, expenses, report) {
-  const payload = {
-    folderName,
-    generatedAt: new Date().toISOString(),
-    report,
-    expenses
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  const safeName = folderName.replace(/[^\w\- ]+/g, '').trim() || 'rendicion';
-  link.href = url;
-  link.download = `${safeName}.json`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
 }
 
 function applyAreaPermissions(allowedAreas) {
