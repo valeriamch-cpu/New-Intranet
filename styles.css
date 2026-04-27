@@ -621,12 +621,6 @@ textarea {
   flex-wrap: wrap;
 }
 
-.expense-report-form {
-  margin-top: 0.6rem;
-  display: grid;
-  gap: 0.5rem;
-}
-
 .expenses-list {
   list-style: none;
   margin: 0.8rem 0 0;

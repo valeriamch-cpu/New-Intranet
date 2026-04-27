@@ -38,10 +38,24 @@ const expensesPageRoot = document.getElementById('expenses-page');
 if (expensesPageRoot) initExpensesPage();
 
 if ('serviceWorker' in navigator) {
+<<<<<<< codex/crear-intranet-con-permisos-de-usuario-h439i5
+  window.addEventListener('load', async () => {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+    } catch {
+      // no-op
+    }
+=======
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {
       // no-op
     });
+>>>>>>> main
   });
 }
 
@@ -359,6 +373,7 @@ function initExpensesPage() {
 
     if (!reportNumber || !reportName || !amount || !detail) {
       expenseFeedback.textContent = 'Completa número rendición, nombre, gasto y monto.';
+<<<<<<< codex/crear-intranet-con-permisos-de-usuario-h439i5
       return;
     }
 
@@ -429,6 +444,78 @@ function initExpensesPage() {
       return;
     }
 
+=======
+      return;
+    }
+
+    if (!state.report.locked) {
+      state.report.number = reportNumber;
+      state.report.name = reportName;
+      state.report.locked = true;
+      persistReport();
+      syncReportInputs();
+    }
+
+    const photoData = await toBase64(photoInput.files[0]);
+    state.expenses.unshift({
+      id: String(Date.now()),
+      amount,
+      detail,
+      photoData,
+      createdAt: new Date().toISOString()
+    });
+
+    persistExpenses();
+    document.getElementById('expense-amount').value = '';
+    document.getElementById('expense-detail').value = '';
+    photoInput.value = '';
+    expenseFeedback.textContent = 'Gasto guardado. Puedes seguir agregando monto y detalle.';
+    renderExpenses();
+  });
+
+  finalizeReportBtn.addEventListener('click', () => {
+    if (!state.report.number || !state.report.name || !state.expenses.length) {
+      expenseFeedback.textContent = 'Primero carga al menos un gasto con número y nombre.';
+      return;
+    }
+
+    const folderName = `${state.report.number} - ${state.report.name}`;
+    state.folders.unshift({
+      folderName,
+      createdAt: new Date().toISOString(),
+      report: { ...state.report },
+      expenses: [...state.expenses]
+    });
+    safeSet(storageKeys.expenseFolders, JSON.stringify(state.folders));
+    state.expenses = [];
+    state.report = { number: '', name: '', locked: false };
+    safeRemove(storageKeys.expenses);
+    safeRemove(storageKeys.expenseReport);
+    syncReportInputs();
+    expenseForm.reset();
+    renderExpenses();
+    expenseFeedback.textContent = `Rendición guardada en carpeta: ${folderName}. Sube las fotos y comprobantes a esa carpeta en Drive.`;
+  });
+
+  resetReportBtn.addEventListener('click', () => {
+    state.expenses = [];
+    state.report = { number: '', name: '', locked: false };
+    safeRemove(storageKeys.expenses);
+    safeRemove(storageKeys.expenseReport);
+    syncReportInputs();
+    expenseForm.reset();
+    expenseFeedback.textContent = 'Lista para una nueva rendición.';
+    renderExpenses();
+  });
+
+  function renderExpenses() {
+    expensesList.innerHTML = '';
+    if (!state.expenses.length) {
+      expensesList.innerHTML = '<li>Aún no hay gastos registrados.</li>';
+      return;
+    }
+
+>>>>>>> main
     state.expenses.forEach((expense) => {
       const li = document.createElement('li');
       li.innerHTML = `
