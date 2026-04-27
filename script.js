@@ -318,10 +318,11 @@ function initExpensesPage() {
   const finalizeReportBtn = document.getElementById('finalize-expense-report');
   const resetReportBtn = document.getElementById('reset-expense-report');
   const reportNumberInput = document.getElementById('report-number');
+  const reportNameInput = document.getElementById('report-name');
   const logoutBtn = document.getElementById('logout-btn');
   const state = {
     expenses: loadJson(storageKeys.expenses, []),
-    report: loadJson(storageKeys.expenseReport, { number: '', locked: false }),
+    report: loadJson(storageKeys.expenseReport, { number: '', name: '', locked: false }),
     folders: loadJson(storageKeys.expenseFolders, [])
   };
 
@@ -343,23 +344,27 @@ function initExpensesPage() {
 
   function syncReportInputs() {
     reportNumberInput.value = state.report.number || '';
+    reportNameInput.value = state.report.name || '';
     reportNumberInput.disabled = Boolean(state.report.locked);
+    reportNameInput.disabled = Boolean(state.report.locked);
   }
 
   expenseForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const reportNumber = reportNumberInput.value.trim();
+    const reportName = reportNameInput.value.trim();
     const amount = Number(document.getElementById('expense-amount').value);
     const detail = document.getElementById('expense-detail').value.trim();
     const photoInput = document.getElementById('expense-photo');
 
-    if (!reportNumber || !amount || !detail) {
-      expenseFeedback.textContent = 'Completa N° rendición, monto y detalle.';
+    if (!reportNumber || !reportName || !amount || !detail) {
+      expenseFeedback.textContent = 'Completa número rendición, nombre, gasto y monto.';
       return;
     }
 
     if (!state.report.locked) {
       state.report.number = reportNumber;
+      state.report.name = reportName;
       state.report.locked = true;
       persistReport();
       syncReportInputs();
@@ -383,12 +388,12 @@ function initExpensesPage() {
   });
 
   finalizeReportBtn.addEventListener('click', () => {
-    if (!state.report.number || !state.expenses.length) {
-      expenseFeedback.textContent = 'Primero carga al menos un gasto con N° rendición.';
+    if (!state.report.number || !state.report.name || !state.expenses.length) {
+      expenseFeedback.textContent = 'Primero carga al menos un gasto con número y nombre.';
       return;
     }
 
-    const folderName = state.report.number;
+    const folderName = `${state.report.number} - ${state.report.name}`;
     state.folders.unshift({
       folderName,
       createdAt: new Date().toISOString(),
@@ -397,18 +402,18 @@ function initExpensesPage() {
     });
     safeSet(storageKeys.expenseFolders, JSON.stringify(state.folders));
     state.expenses = [];
-    state.report = { number: '', locked: false };
+    state.report = { number: '', name: '', locked: false };
     safeRemove(storageKeys.expenses);
     safeRemove(storageKeys.expenseReport);
     syncReportInputs();
     expenseForm.reset();
     renderExpenses();
-    expenseFeedback.textContent = `Rendición guardada en carpeta: ${folderName}.`;
+    expenseFeedback.textContent = `Rendición guardada en carpeta: ${folderName}. Sube las fotos y comprobantes a esa carpeta en Drive.`;
   });
 
   resetReportBtn.addEventListener('click', () => {
     state.expenses = [];
-    state.report = { number: '', locked: false };
+    state.report = { number: '', name: '', locked: false };
     safeRemove(storageKeys.expenses);
     safeRemove(storageKeys.expenseReport);
     syncReportInputs();

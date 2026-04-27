@@ -29,11 +29,12 @@
     <main id="expenses-page" class="container">
       <section class="card">
         <h3>Detalle de rendición</h3>
-        <p class="hint">Primero ingresa el N° de rendición. Después agrega gastos con monto y foto hasta finalizar.</p>
+        <p class="hint">Formato: Número rendición, nombre, gasto, monto y foto. Graba y luego finaliza para guardar carpeta.</p>
 
         <form id="expense-form" class="expense-form">
           <input id="report-number" type="text" placeholder="N° rendición (ej: R-2026-015)" required />
-          <input id="expense-detail" type="text" placeholder="Detalle" required />
+          <input id="report-name" type="text" placeholder="Nombre" required />
+          <input id="expense-detail" type="text" placeholder="Gasto" required />
           <input id="expense-amount" type="number" min="0" step="0.01" placeholder="Monto" required />
           <input id="expense-photo" type="file" accept="image/*" capture="environment" />
           <p class="hint">Puedes sacar foto desde el celular o adjuntar una imagen existente.</p>
