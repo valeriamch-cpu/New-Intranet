@@ -33,4 +33,13 @@ Abrir: `http://localhost:8080`
 
 ## Rinde gastos
 
-Actualmente la vista de **Rinde gastos** está intencionalmente vacía para volver a construir el flujo desde cero.
+Formato actual:
+
+1. Número rendición
+2. Nombre
+3. Gasto
+4. Monto
+5. Foto
+
+El guardado directo en Drive está preparado vía webhook en `script.js` (`DRIVE_UPLOAD_WEBHOOK`).
+Si no hay webhook configurado, la app descarga un JSON para subir manualmente.

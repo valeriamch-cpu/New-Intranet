@@ -29,6 +29,9 @@ const users = {
   }
 };
 
+// Configura este endpoint (Apps Script / backend) para guardar directamente en Drive.
+const DRIVE_UPLOAD_WEBHOOK = '';
+
 const loginForm = document.getElementById('login-form');
 if (loginForm) initLogin();
 
@@ -320,6 +323,8 @@ function initExpensesPage() {
   const user = safeGet(storageKeys.user) || 'invitado';
   const sessionLabel = document.getElementById('expenses-session-user');
   const logoutBtn = document.getElementById('logout-btn');
+  const expenseForm = document.getElementById('expense-form');
+  const feedback = document.getElementById('expense-feedback');
 
   sessionLabel.textContent = `Conectado como: ${user}`;
   logoutBtn.addEventListener('click', () => {
@@ -328,6 +333,75 @@ function initExpensesPage() {
     safeRemove(storageKeys.modules);
     safeRemove(storageKeys.auth);
   });
+
+  if (!expenseForm || !feedback) {
+    return;
+  }
+
+  expenseForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const reportNumber = document.getElementById('report-number').value.trim();
+    const name = document.getElementById('report-name').value.trim();
+    const detail = document.getElementById('expense-detail').value.trim();
+    const amount = Number(document.getElementById('expense-amount').value);
+    const photoInput = document.getElementById('expense-photo');
+    const photoFile = photoInput.files[0];
+
+    if (!reportNumber || !name || !detail || !amount || !photoFile) {
+      feedback.textContent = 'Completa número rendición, nombre, gasto, monto y foto.';
+      return;
+    }
+
+    const record = {
+      reportNumber,
+      name,
+      detail,
+      amount,
+      createdAt: new Date().toISOString(),
+      photoBase64: await toBase64(photoFile),
+      photoName: photoFile.name || 'foto.jpg'
+    };
+
+    const saved = await saveExpenseToDrive(record);
+    if (saved) {
+      expenseForm.reset();
+      feedback.textContent = 'Guardado en Drive correctamente.';
+      return;
+    }
+
+    fallbackLocalSave(record);
+    feedback.textContent = 'No se pudo guardar directo en Drive. Se descargó un JSON para subir manualmente.';
+  });
+}
+
+async function saveExpenseToDrive(record) {
+  if (!DRIVE_UPLOAD_WEBHOOK) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(DRIVE_UPLOAD_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(record)
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+function fallbackLocalSave(record) {
+  const folderName = `${record.reportNumber} - ${record.name}`.trim();
+  const blob = new Blob([JSON.stringify(record, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${folderName}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 function applyAreaPermissions(allowedAreas) {

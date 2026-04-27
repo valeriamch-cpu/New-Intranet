@@ -29,7 +29,16 @@
     <main id="expenses-page" class="container">
       <section class="card">
         <h3>Rinde gastos</h3>
-        <p class="hint">Sección vacía para comenzar desde cero.</p>
+        <p class="hint">Formato: Número rendición, nombre, gasto, monto y foto.</p>
+        <form id="expense-form" class="expense-form">
+          <input id="report-number" type="text" placeholder="Número rendición" required />
+          <input id="report-name" type="text" placeholder="Nombre" required />
+          <input id="expense-detail" type="text" placeholder="Gasto" required />
+          <input id="expense-amount" type="number" min="0" step="0.01" placeholder="Monto" required />
+          <input id="expense-photo" type="file" accept="image/*" capture="environment" required />
+          <button class="btn" type="submit">Guardar en Drive</button>
+        </form>
+        <p id="expense-feedback" class="hint" role="status" aria-live="polite"></p>
       </section>
     </main>
 
