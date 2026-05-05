@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>NEW VALERITA · Inventario</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0f0f0f;color:#fff;min-height:100vh}
+:root{--accent:#e63946;--green:#22c55e;--yellow:#f59e0b;--blue:#3b82f6;--card:#1a1a1a;--border:#2a2a2a}
+
+/* TOPBAR */
+.topbar{background:#000;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.topbar-logo{font-size:16px;font-weight:800;letter-spacing:-0.5px;color:#fff}
+.topbar-logo span{color:var(--accent)}
+.topbar-right{display:flex;gap:8px}
+.bsm{background:#1a1a1a;color:#aaa;border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:none;white-space:nowrap}
+.bsm:hover{background:#252525;color:#fff}
+
+/* SEARCH HERO */
+.search-hero{padding:28px 20px 20px;background:#000;border-bottom:1px solid var(--border)}
+.search-title{font-size:22px;font-weight:800;letter-spacing:-0.8px;margin-bottom:4px}
+.search-title span{color:var(--accent)}
+.search-sub{font-size:13px;color:#666;margin-bottom:18px}
+.search-bar{display:flex;gap:10px;align-items:center}
+.search-input{flex:1;background:#1a1a1a;border:2px solid var(--border);border-radius:12px;padding:14px 18px;font-size:16px;font-family:inherit;color:#fff;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:#444}
+.btn-scan{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:14px 18px;font-size:20px;cursor:pointer;flex-shrink:0}
+.btn-add{background:#1a1a1a;color:#aaa;border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-add:hover{background:#252525;color:#fff}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px 20px}
+.stat{background:var(--card);border-radius:10px;padding:12px 14px;border:1px solid var(--border)}
+.slbl{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.sval{font-size:20px;font-weight:800;color:#fff}
+.sval.r{color:var(--accent)}.sval.g{color:var(--green)}.sval.y{color:var(--yellow)}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;padding:0 20px 14px;overflow-x:auto;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.ftag{background:#1a1a1a;border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12.5px;cursor:pointer;white-space:nowrap;color:#888;transition:all .15s;flex-shrink:0}
+.ftag.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.ftag:hover{border-color:#555;color:#fff}
+
+/* RESULTS */
+.results{padding:0 20px 100px}
+.result-count{font-size:12px;color:#555;margin-bottom:12px}
+
+/* PRODUCT CARD */
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s;cursor:pointer}
+.pcard:hover{border-color:#444}
+.pcard.found{border-color:var(--green);animation:pulse .5s ease}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.01)}100%{transform:scale(1)}}
+.pcard-hdr{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.pcard-main{flex:1;min-width:0}
+.pcard-nombre{font-size:15px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard-marca{font-size:12px;color:#666;margin-bottom:6px}
+.pcard-tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600}
+.tag-rack{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.tag-caja{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+.tag-talla{background:rgba(255,255,255,.06);color:#aaa;border:1px solid #2a2a2a}
+.tag-color{background:rgba(255,255,255,.06);color:#aaa;border:1px solid #2a2a2a}
+.tag-qty{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.pcard-sku{font-size:11px;color:#444;font-family:monospace}
+.pcard-actions{display:flex;gap:6px;flex-shrink:0}
+.pact{background:#252525;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;color:#aaa;font-family:inherit;transition:all .15s}
+.pact:hover{background:#333;color:#fff}
+.pact.del:hover{background:rgba(230,57,70,.15);color:var(--accent);border-color:rgba(230,57,70,.3)}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:#444}
+.empty-icon{font-size:48px;margin-bottom:14px;opacity:.4}
+.empty-text{font-size:15px}
+.empty-sub{font-size:13px;margin-top:6px;color:#333}
+
+/* LOADING */
+.loading-bar{height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);width:100%;animation:slide 1.2s infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:none;align-items:flex-end;justify-content:center;padding:0}
+.moverlay.open{display:flex}
+.modal{background:#111;border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;border-top:1px solid var(--border)}
+.mhdr{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:#111;z-index:1}
+.mtitle{font-size:16px;font-weight:700}
+.mclose{background:none;border:none;font-size:22px;cursor:pointer;color:#555;padding:4px;line-height:1}
+.mclose:hover{color:#fff}
+.mbody{padding:20px}
+.msection{font-size:10px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.8px;margin:18px 0 10px}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mfield{display:flex;flex-direction:column;gap:5px}
+.mfield.full{grid-column:1/-1}
+.mlbl{font-size:11px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.mctl{background:#1a1a1a;border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit;color:#fff;outline:none;width:100%;transition:border-color .15s}
+.mctl:focus{border-color:var(--accent)}
+.mfoot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;position:sticky;bottom:0;background:#111}
+.mbtn{flex:1;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.mbtn.pri{background:var(--accent);color:#fff}
+.mbtn.sec{background:#1a1a1a;color:#aaa;border:1px solid var(--border)}
+.mbtn:hover{opacity:.85}
+
+/* MODAL MOVER */
+.loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.loc-card{background:#1a1a1a;border:2px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;text-align:center;transition:all .15s}
+.loc-card:hover,.loc-card.sel{border-color:var(--accent);background:rgba(230,57,70,.08)}
+.loc-card .lc-icon{font-size:24px;margin-bottom:6px}
+.loc-card .lc-name{font-size:13px;font-weight:700}
+.loc-card .lc-val{font-size:11px;color:#666;margin-top:2px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:600;z-index:2000;transition:transform .3s;white-space:nowrap;color:#fff}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--green);color:var(--green)}
+.toast.err{border-color:var(--accent);color:var(--accent)}
+
+/* SCAN OVERLAY */
+.scan-overlay{position:fixed;inset:0;background:#000;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center}
+.scan-overlay.open{display:flex}
+.scan-frame{width:260px;height:260px;border:3px solid var(--accent);border-radius:16px;position:relative;margin-bottom:24px}
+.scan-line{position:absolute;width:100%;height:2px;background:var(--accent);top:50%;animation:scan 1.5s ease-in-out infinite}
+@keyframes scan{0%{top:10%}100%{top:90%}}
+.scan-corners::before,.scan-corners::after{content:'';position:absolute;width:20px;height:20px;border-color:var(--green);border-style:solid}
+.scan-text{color:#fff;font-size:15px;font-weight:600;margin-bottom:8px}
+.scan-sub{color:#666;font-size:13px;text-align:center;padding:0 20px;margin-bottom:24px}
+.scan-manual{background:#1a1a1a;border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:14px;font-family:inherit;color:#fff;outline:none;width:240px;text-align:center;margin-bottom:12px}
+.scan-manual:focus{border-color:var(--accent)}
+
+@media(min-width:600px){
+  .stats{grid-template-columns:repeat(4,1fr)}
+  .moverlay{align-items:center;padding:20px}
+  .modal{border-radius:16px;max-height:85vh}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">NEW <span>VALERITA</span></div>
+  <div class="topbar-right">
+    <a id="link-sheet" href="https://docs.google.com/spreadsheets/d/1U9iARLpIsrI_ps91Z-QjbdX5zvdcRQGynIyyi9Li7UA/edit" target="_blank" class="bsm">&#128196; Sheet</a>
+    <button class="bsm" onclick="history.back()">&#8592; Volver</button>
+  </div>
+</div>
+
+<div class="search-hero">
+  <div class="search-title">NEW <span>VALERITA</span></div>
+  <div class="search-sub">Buscador de inventario · SKU · Rack · Caja</div>
+  <div class="search-bar">
+    <input class="search-input" id="q" placeholder="Buscar SKU, nombre, marca, rack, caja..." oninput="buscar()" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="btn-scan" onclick="abrirScanner()" title="Escanear código">&#128247;</button>
+    <button class="btn-add" onclick="openNew()">+ Agregar</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="slbl">Total SKUs</div><div class="sval" id="s-total">—</div></div>
+  <div class="stat"><div class="slbl">Marcas</div><div class="sval y" id="s-marcas">—</div></div>
+  <div class="stat"><div class="slbl">Racks</div><div class="sval" id="s-racks">—</div></div>
+  <div class="stat"><div class="slbl">Cajas</div><div class="sval" id="s-cajas">—</div></div>
+</div>
+
+<div class="filters" id="filters">
+  <div class="ftag active" data-marca="" onclick="setMarca(this)">Todas</div>
+</div>
+
+<div id="loading-wrap" style="overflow:hidden;height:2px;margin:0 20px 10px">
+  <div class="loading-bar" id="loading-bar" style="display:none"></div>
+</div>
+
+<div class="results">
+  <div class="result-count" id="rcnt"></div>
+  <div id="result-list">
+    <div class="empty"><div class="empty-icon">&#128270;</div><div class="empty-text">Cargando inventario...</div></div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR / AGREGAR -->
+<div class="moverlay" id="modal-edit">
+  <div class="modal">
+    <div class="mhdr">
+      <span class="mtitle" id="edit-title">Nuevo Producto</span>
+      <button class="mclose" onclick="closeModal('modal-edit')">&#215;</button>
+    </div>
+    <div class="mbody">
+      <div class="msection">Identificación</div>
+      <div class="mrow">
+        <div class="mfield full">
+          <label class="mlbl">SKU / Código de barras</label>
+          <input class="mctl" id="e-sku" placeholder="Escanea o escribe el SKU">
+        </div>
+        <div class="mfield full">
+          <label class="mlbl">Nombre del producto</label>
+          <input class="mctl" id="e-nombre" placeholder="Ej: Poleron Logo">
+        </div>
+        <div class="mfield">
+          <label class="mlbl">Marca</label>
+          <input class="mctl" id="e-marca" placeholder="Ej: Carhartt" list="marcas-list">
+          <datalist id="marcas-list"></datalist>
+        </div>
+        <div class="mfield">
+          <label class="mlbl">Nota</label>
+          <input class="mctl" id="e-nota" placeholder="Notas del producto">
+        </div>
+        <div class="mfield">
+          <label class="mlbl">Codigo de Barra</label>
+          <input class="mctl" id="e-codbarra" placeholder="Ej: 7891234567890">
+        </div>
+        <div class="mfield">
+          <label class="mlbl">Variante (talla/color)</label>
+          <input class="mctl" id="e-variante" placeholder="Ej: M Negro">
+        </div>
+      </div>
+      <div class="msection">Ubicación</div>
+      <div class="mrow">
+        <div class="mfield">
+          <label class="mlbl">Rack</label>
+          <input class="mctl" id="e-rack" placeholder="Ej: R-01">
+        </div>
+        <div class="mfield">
+          <label class="mlbl">Caja</label>
+          <input class="mctl" id="e-caja" placeholder="Ej: C-01">
+        </div>
+
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="mbtn sec" onclick="closeModal('modal-edit')">Cancelar</button>
+      <button class="mbtn pri" id="btn-guardar" onclick="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MOVER -->
+<div class="moverlay" id="modal-mover">
+  <div class="modal">
+    <div class="mhdr">
+      <span class="mtitle">Mover producto</span>
+      <button class="mclose" onclick="closeModal('modal-mover')">&#215;</button>
+    </div>
+    <div class="mbody">
+      <div id="mover-info" style="background:#1a1a1a;border-radius:10px;padding:14px;margin-bottom:18px;font-size:13px;line-height:1.6;color:#aaa"></div>
+      <div class="msection">Nueva Ubicación</div>
+      <div class="mrow">
+        <div class="mfield">
+          <label class="mlbl">Nuevo Rack</label>
+          <input class="mctl" id="m-rack" placeholder="Ej: R-05">
+        </div>
+        <div class="mfield">
+          <label class="mlbl">Nueva Caja</label>
+          <input class="mctl" id="m-caja" placeholder="Ej: C-10">
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <div class="msection" style="margin-top:0">Ubicaciones frecuentes</div>
+        <div id="loc-grid" class="loc-grid"></div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="mbtn sec" onclick="closeModal('modal-mover')">Cancelar</button>
+      <button class="mbtn pri" onclick="confirmarMover()">Mover &#128230;</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN OVERLAY -->
+<div class="scan-overlay" id="scan-overlay">
+  <div style="font-size:40px;margin-bottom:16px">&#128247;</div>
+  <div class="scan-text">Escanear código</div>
+  <div class="scan-sub">Apunta la cámara al código de barras, o escríbelo manualmente abajo</div>
+  <input class="scan-manual" id="scan-input" placeholder="Escribe el SKU y presiona Enter..." onkeypress="onScanKey(event)" autocomplete="off" autofocus>
+  <button class="mbtn pri" style="width:240px;padding:12px;border-radius:10px;margin-bottom:12px" onclick="buscarScan()">&#128270; Buscar</button>
+  <button class="bsm" onclick="cerrarScanner()">Cancelar</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbygySZOBKj15hzIcO_82k9n_n4A0oeYTo5_YdJXkX9Cuh5I79vBAvPndNSO8cUaHQ-4/exec';
+var SKU_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1U9iARLpIsrI_ps91Z-QjbdX5zvdcRQGynIyyi9Li7UA/edit';
+
+var productos = [];
+var filtroMarca = '';
+var editId = null;
+var moverSku = null;
+
+// ── LOAD ──
+function load() {
+  document.getElementById('loading-bar').style.display = 'block';
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', SHEETS_URL + '?type=valerita_sku', true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    document.getElementById('loading-bar').style.display = 'none';
+    try {
+      var r = JSON.parse(xhr.responseText);
+      if (r.ok && r.data && r.data.length > 1) {
+        var hdr = r.data[0];
+        productos = r.data.slice(1).filter(function(row){ return row[0]; }).map(function(row) {
+          var o = {};
+          hdr.forEach(function(h,i){
+            var k = String(h).toLowerCase().trim().replace(/\s+/g,'_');
+            // normalize known headers
+            var map = {'sku':'sku','codigo_barra':'codbarra','codigo':'codbarra','nombre':'nombre','variante':'variante','marca':'marca','rack':'rack','caja':'caja','nota':'nota','notas':'nota','talla':'variante','color':'variante','cantidad':'cantidad'};
+            o[map[k]||k] = row[i]||'';
+          });
+          return o;
+        });
+      } else { productos = []; }
+    } catch(e) { productos = []; }
+    renderFilters();
+    renderStats();
+    buscar();
+  };
+  xhr.send();
+}
+
+function saveToSheet() {
+  var hdr = ['SKU','CODIGO BARRA','NOMBRE','VARIANTE','MARCA','RACK','CAJA','NOTA'];
+  var data = [hdr].concat(productos.map(function(p){
+    return [p.sku||'',p.codbarra||'',p.nombre||'',p.variante||'',p.marca||'',p.rack||'',p.caja||'',p.nota||''];
+  }));
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', SHEETS_URL, true);
+  xhr.setRequestHeader('Content-Type','text/plain');
+  xhr.send(JSON.stringify({type:'valerita_sku', data:data}));
+}
+
+// ── RENDER ──
+function renderStats() {
+  document.getElementById('s-total').textContent = productos.length;
+  var marcas = [...new Set(productos.map(function(p){ return p.marca; }).filter(Boolean))];
+  var racks  = [...new Set(productos.map(function(p){ return p.rack; }).filter(Boolean))];
+  var cajas  = [...new Set(productos.map(function(p){ return p.caja; }).filter(Boolean))];
+  document.getElementById('s-marcas').textContent = marcas.length;
+  document.getElementById('s-racks').textContent  = racks.length;
+  document.getElementById('s-cajas').textContent  = cajas.length;
+}
+
+function renderFilters() {
+  var marcas = [...new Set(productos.map(function(p){ return p.marca; }).filter(Boolean))].sort();
+  var fil = document.getElementById('filters');
+  fil.innerHTML = '<div class="ftag active" data-marca="" onclick="setMarca(this)">Todas</div>';
+  marcas.forEach(function(m){
+    fil.innerHTML += '<div class="ftag" data-marca="'+m+'" onclick="setMarca(this)">'+m+'</div>';
+  });
+  // Update datalist
+  var dl = document.getElementById('marcas-list');
+  dl.innerHTML = marcas.map(function(m){ return '<option value="'+m+'">'; }).join('');
+}
+
+function setMarca(el) {
+  document.querySelectorAll('.ftag').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  filtroMarca = el.getAttribute('data-marca');
+  buscar();
+}
+
+function buscar() {
+  var q = (document.getElementById('q').value||'').toLowerCase().trim();
+  var filtered = productos.filter(function(p){
+    if (filtroMarca && p.marca !== filtroMarca) return false;
+    if (!q) return true;
+    return (p.sku+' '+p.codbarra+' '+p.nombre+' '+p.variante+' '+p.marca+' '+p.rack+' '+p.caja).toLowerCase().indexOf(q) !== -1;
+  });
+  document.getElementById('rcnt').textContent = filtered.length + ' producto' + (filtered.length !== 1 ? 's' : '') + (q ? ' para "' + q + '"' : '');
+  var el = document.getElementById('result-list');
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">&#128270;</div><div class="empty-text">' + (q ? 'Sin resultados para "' + q + '"' : 'Sin productos') + '</div><div class="empty-sub">' + (q ? 'Intenta con otro SKU o nombre' : 'Agrega tu primer producto') + '</div></div>';
+    return;
+  }
+  el.innerHTML = '';
+  filtered.forEach(function(p, i) {
+    var card = document.createElement('div');
+    card.className = 'pcard';
+    if (document.getElementById('q').value && i === 0) card.classList.add('found');
+    card.innerHTML =
+      '<div class="pcard-hdr">' +
+        '<div class="pcard-main">' +
+          '<div class="pcard-nombre">' + (p.nombre||'Sin nombre') + '</div>' +
+          '<div class="pcard-marca">' + (p.marca||'') + (p.variante?' · '+p.variante:'') + '</div>' +
+          '<div class="pcard-tags">' +
+            (p.rack ? '<span class="tag tag-rack">&#128204; ' + p.rack + '</span>' : '') +
+            (p.caja ? '<span class="tag tag-caja">&#128230; ' + p.caja + '</span>' : '') +
+            (p.cantidad ? '<span class="tag tag-qty">x' + p.cantidad + '</span>' : '') +
+          '</div>' +
+          '<div class="pcard-sku" style="margin-top:5px">SKU: ' + (p.sku||'') + (p.codbarra?' · Cód: '+p.codbarra:'') + '</div>' +
+        '</div>' +
+        '<div class="pcard-actions">' +
+          '<button class="pact" title="Editar">&#9998;</button>' +
+          '<button class="pact" title="Mover">&#128230;</button>' +
+          '<button class="pact del" title="Eliminar">&#128465;</button>' +
+        '</div>' +
+      '</div>';
+    // Attach events without inline onclick
+    var btns = card.querySelectorAll('.pact');
+    btns[0].addEventListener('click', (function(sku){ return function(e){ e.stopPropagation(); openEdit(sku); }; })(p.sku));
+    btns[1].addEventListener('click', (function(sku){ return function(e){ e.stopPropagation(); openMover(sku); }; })(p.sku));
+    btns[2].addEventListener('click', (function(sku){ return function(e){ e.stopPropagation(); eliminar(sku); }; })(p.sku));
+    card.addEventListener('click', (function(sku){ return function(){ openEdit(sku); }; })(p.sku));
+    el.appendChild(card);
+  });
+}
+
+// ── NUEVO / EDITAR ──
+function openNew() {
+  editId = null;
+  document.getElementById('edit-title').textContent = 'Nuevo Producto';
+  ['e-sku','e-codbarra','e-nombre','e-variante','e-marca','e-rack','e-caja','e-nota'].forEach(function(i){ var el=document.getElementById(i); if(el) el.value=''; });
+  document.getElementById('modal-edit').classList.add('open');
+  setTimeout(function(){ document.getElementById('e-sku').focus(); }, 200);
+}
+
+function openEdit(sku) {
+  var p = productos.find(function(x){ return x.sku === sku; });
+  if (!p) return;
+  editId = sku;
+  document.getElementById('edit-title').textContent = 'Editar · ' + (p.nombre||p.sku);
+  document.getElementById('e-sku').value      = p.sku||'';
+  document.getElementById('e-codbarra').value = p.codbarra||'';
+  document.getElementById('e-nombre').value   = p.nombre||'';
+  document.getElementById('e-variante').value = p.variante||'';
+  document.getElementById('e-marca').value    = p.marca||'';
+  document.getElementById('e-rack').value     = p.rack||'';
+  document.getElementById('e-caja').value     = p.caja||'';
+  document.getElementById('e-nota').value     = p.nota||'';
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function guardar() {
+  var sku    = document.getElementById('e-sku').value.trim();
+  var nombre = document.getElementById('e-nombre').value.trim();
+  if (!sku)    { toast('Ingresa el SKU', 'err'); return; }
+  if (!nombre) { toast('Ingresa el nombre', 'err'); return; }
+  var obj = {
+    sku:      sku,
+    nombre:   nombre,
+    codbarra: document.getElementById('e-codbarra').value.trim(),
+    variante: document.getElementById('e-variante').value.trim(),
+    marca:    document.getElementById('e-marca').value.trim(),
+    rack:     document.getElementById('e-rack').value.trim(),
+    caja:     document.getElementById('e-caja').value.trim(),
+    nota:     document.getElementById('e-nota').value.trim(),
+  };
+  if (editId) {
+    var idx = productos.findIndex(function(x){ return x.sku === editId; });
+    if (idx !== -1) productos[idx] = obj;
+    toast('Producto actualizado ✓', 'ok');
+  } else {
+    if (productos.find(function(x){ return x.sku === sku; })) { toast('SKU ya existe', 'err'); return; }
+    productos.unshift(obj);
+    toast('Producto agregado ✓', 'ok');
+  }
+  saveToSheet();
+  closeModal('modal-edit');
+  renderStats(); renderFilters(); buscar();
+}
+
+function eliminar(sku) {
+  var p = productos.find(function(x){ return x.sku === sku; });
+  if (!p) return;
+  if (!confirm('Eliminar "' + (p.nombre||sku) + '"?')) return;
+  productos = productos.filter(function(x){ return x.sku !== sku; });
+  saveToSheet();
+  renderStats(); renderFilters(); buscar();
+  toast('Producto eliminado', 'ok');
+}
+
+// ── MOVER ──
+function openMover(sku) {
+  var p = productos.find(function(x){ return x.sku === sku; });
+  if (!p) return;
+  moverSku = sku;
+  document.getElementById('mover-info').innerHTML =
+    '<strong style="color:#fff">' + (p.nombre||sku) + '</strong><br>' +
+    'SKU: ' + p.sku + '<br>' +
+    'Ubicación actual: <span style="color:#60a5fa">Rack ' + (p.rack||'—') + '</span> · <span style="color:#fbbf24">Caja ' + (p.caja||'—') + '</span>';
+  document.getElementById('m-rack').value = p.rack||'';
+  document.getElementById('m-caja').value = p.caja||'';
+  // Build frequent locations from existing products
+  var locs = {};
+  productos.forEach(function(x){
+    if (x.rack && x.caja) {
+      var key = x.rack + '|' + x.caja;
+      locs[key] = (locs[key]||0) + 1;
+    }
+  });
+  var topLocs = Object.keys(locs).sort(function(a,b){ return locs[b]-locs[a]; }).slice(0,6);
+  var grid = document.getElementById('loc-grid');
+  grid.innerHTML = topLocs.map(function(k){
+    var parts = k.split('|');
+    return '<div class="loc-card" onclick="selLoc(this,\''+parts[0]+'\',\''+parts[1]+'\')">'+
+      '<div class="lc-icon">&#128204;</div>'+
+      '<div class="lc-name">'+parts[0]+'</div>'+
+      '<div class="lc-val">Caja '+parts[1]+'</div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('modal-mover').classList.add('open');
+}
+
+function selLoc(el, rack, caja) {
+  document.querySelectorAll('.loc-card').forEach(function(c){ c.classList.remove('sel'); });
+  el.classList.add('sel');
+  document.getElementById('m-rack').value = rack;
+  document.getElementById('m-caja').value = caja;
+}
+
+function confirmarMover() {
+  var rack = document.getElementById('m-rack').value.trim();
+  var caja = document.getElementById('m-caja').value.trim();
+  if (!rack && !caja) { toast('Ingresa rack o caja destino', 'err'); return; }
+  var p = productos.find(function(x){ return x.sku === moverSku; });
+  if (!p) return;
+  var anterior = 'Rack ' + (p.rack||'—') + ' · Caja ' + (p.caja||'—');
+  if (rack) p.rack = rack;
+  if (caja) p.caja = caja;
+  saveToSheet();
+  closeModal('modal-mover');
+  buscar();
+  toast('Movido a ' + rack + ' · ' + caja + ' ✓', 'ok');
+}
+
+// ── SCANNER ──
+function abrirScanner() {
+  document.getElementById('scan-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('scan-input').focus(); }, 300);
+}
+function cerrarScanner() {
+  document.getElementById('scan-overlay').classList.remove('open');
+  document.getElementById('scan-input').value = '';
+}
+function onScanKey(e) {
+  if (e.key === 'Enter') buscarScan();
+}
+function buscarScan() {
+  var val = document.getElementById('scan-input').value.trim();
+  if (!val) return;
+  cerrarScanner();
+  document.getElementById('q').value = val;
+  buscar();
+  // Highlight first result
+  setTimeout(function(){
+    var first = document.querySelector('.pcard');
+    if (first) { first.classList.add('found'); first.scrollIntoView({behavior:'smooth',block:'center'}); }
+  }, 200);
+}
+
+// ── MODAL ──
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── TOAST ──
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type||'');
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+// ── INIT ──
+load();
+</script>
+</body>
+</html>
